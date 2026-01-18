@@ -155,25 +155,41 @@
     },
     {
       "parameters": {
-        "url": "https://test.api.amadeus.com/v1/reference-data/locations/hotels/by-city",
+        "url": "https://serpapi.com/search.json",
         "sendQuery": true,
         "queryParameters": {
           "parameters": [
             {
-              "name": "cityCode",
-              "value": "={{$node[\"AI Agent1\"].json.output.destinationCityIATA.replace(/[^A-Za-z]/g,'').toUpperCase()}}"
+              "name": "engine",
+              "value": "google_hotels"
             },
             {
-              "name": "radius",
-              "value": "5"
+              "name": "q",
+              "value": "={{ \"hotels in \" + $node[\"AI Agent1\"].json.output.destinationCity }}"
             },
             {
-              "name": "radiusUnit",
-              "value": "KM"
+              "name": "check_in_date",
+              "value": "={{$node[\"AI Agent1\"].json.output.departureDate}}"
             },
             {
-              "name": "hotelSource",
-              "value": "ALL"
+              "name": "check_out_date",
+              "value": "={{$node[\"AI Agent1\"].json.output.returnDate}}"
+            },
+            {
+              "name": "adults",
+              "value": "={{ parseInt($node[\"AI Agent1\"].json.output.adults, 10) }}"
+            },
+            {
+              "name": "currency",
+              "value": "BRL"
+            },
+            {
+              "name": "sort_by",
+              "value": "3"
+            },
+            {
+              "name": "api_key",
+              "value": "7020fdeced29cf0c4a8ca7f140ec4870219905a1119668c05308ba1687e74fdb"
             }
           ]
         },
@@ -199,7 +215,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// O \"data\" do node anterior veio como string contendo um JSON completo.\n// Precisamos fazer parse 2x: primeiro o campo data (string) vira objeto;\n// depois pegamos o .data de dentro dele.\n\nlet payload = $json;\n\n// Se vier como string em payload.data, transforma em objeto\nif (typeof payload.data === 'string') {\n  payload = JSON.parse(payload.data);\n}\n\n// Agora payload.data deve ser um array\nconst data = Array.isArray(payload.data) ? payload.data : [];\n\nconst simplified = data.slice(0, 5).map((item) => {\n  // Nesse endpoint \"by-city\", o item já é hotel básico (não tem \"offers\")\n  return {\n    name: item.name || null,\n    hotelId: item.hotelId || null,\n    iataCode: item.iataCode || null,\n    cityName: item.address?.cityName || null,\n    address: item.address?.lines?.join(\", \") || null,\n    distanceKm: item.distance?.value ?? null,\n    geo: item.geoCode ? { lat: item.geoCode.latitude, lon: item.geoCode.longitude } : null\n  };\n});\n\nreturn [{ json: { hotelsByCity: simplified } }];\n"
+        "jsCode": "const res = $json;\n\n// dependendo da config do n8n, pode vir em body\nconst payload = res.body && typeof res.body === 'object' ? res.body : res;\n\nconst props = payload.properties || [];\nconst simplified = props.slice(0, 5).map((p) => ({\n  name: p.name || null,\n  address: p.address || null,\n  rating: p.overall_rating ?? p.rating ?? null,\n  reviews: p.reviews ?? null,\n  price_per_night: p.rate_per_night?.lowest ?? p.rate_per_night ?? null,\n  total_rate: p.total_rate ?? null,\n  currency: p.rate_per_night?.currency ?? p.currency ?? \"BRL\",\n  link: p.link || null\n}));\n\nreturn [{ json: { hotelOffers: simplified } }];\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -385,7 +401,7 @@
     "executionOrder": "v1",
     "availableInMCP": false
   },
-  "versionId": "91cde3ec-4af7-4d59-9022-11dae2443700",
+  "versionId": "b259a306-3ea8-4ae7-8ba3-eb4515256e28",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "22ea323b6c85fbb2de3a8dedaefae6ec8edb82e9c1e169fef139445834eee221"
