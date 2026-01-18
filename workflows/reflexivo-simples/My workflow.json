@@ -1,0 +1,395 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -496,
+        0
+      ],
+      "id": "5cf0bd1a-ce09-4a3b-bf88-2a72926db59e",
+      "name": "When chat message received",
+      "webhookId": "d3f1dcf3-3350-4c48-a09f-a8a9a60e8512"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ JSON.stringify({\n  userMessage: $node[\"When chat message received\"].json.chatInput,\n  trip: $node[\"AI Agent1\"].json.output,\n  flights: $node[\"Simplify Flights\"].json.flightOffers,\n  hotels: $node[\"Simplify Hotels\"].json.hotelOffers\n}, null, 2) }}\n",
+        "options": {
+          "systemMessage": "Você é o Agente Reflexivo Simples (Condition → Action) do projeto “Assistente de Planejamento de Viagens”.\n\nVocê NÃO mantém estado.\nVocê NÃO possui memória.\nVocê responde apenas com base nos dados fornecidos nesta mensagem.\n\nVocê receberá um JSON com:\n- trip: informações da viagem (origem, destino, datas, passageiros)\n- flights: lista (até 5) de opções de voos simplificadas\n- hotels: lista (até 5) de opções de hotéis simplificadas (com preço/datas quando disponível)\n- userMessage: mensagem original do usuário\n\nTarefas:\n1) Confirmar o resumo da viagem (origem → destino, datas, passageiros).\n2) Selecionar e apresentar as 3 melhores opções de voo (priorize menor preço; em empate, menos paradas).\n   - Para cada voo, mostre: companhia, preço total e moeda, horário de ida/volta (se houver), duração e paradas.\n3) Selecionar e apresentar até 3 hotéis (priorize menor preço total quando existir).\n   - Para cada hotel, mostre: nome, preço total (se existir), datas (se existirem), e endereço/bairro se disponível.\n4) Listar 3 pontos turísticos famosos da cidade de destino (sem inventar preços).\n5) Se algum dado essencial estiver faltando (ex.: destino, datas ou voos/hotéis vazios), peça somente o que falta ou explique que não há resultados.\n\nRegras:\n- NÃO invente preços, horários, companhias, hotéis ou detalhes que não estejam no JSON.\n- Se flights estiver vazio, diga que não encontrou voos e sugira ajustar aeroporto/datas.\n- Se hotels estiver vazio, diga que não encontrou hotéis e sugira tentar outras datas ou aumentar a busca.\n- Seja objetivo e use bullets.\n\nFormato de saída (texto):\n✅ Resumo da viagem\n✈️ Voos (3 opções)\n🏨 Hotéis (até 3 opções)\n📍 3 pontos turísticos\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1200,
+        0
+      ],
+      "id": "0e2d5969-9d4b-403a-9e0e-6dfd5f94db3e",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{$json.chatInput}}\n",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "Você é um Agente LLM Reflexivo Simples (Condition → Action).\nVocê NÃO mantém estado, NÃO possui memória e NÃO planeja em múltiplos passos.\n\nTarefa:\n- Extrair: cidade de origem e IATA dessa cidade, cidade de destino e IATA dessa cidade, data de ida, data de volta, adultos e crianças.\n- Se faltar ano, usar 2026.\n- Se faltar cidade de origem, usar Recife.\n- Se faltar passageiros, usar adults=1 e children=0.\n- Retornar APENAS JSON válido.\n\nFormato obrigatório de saída:\n{\n  \"originCity\": \"string\",\n  \"originCityIATA\": \"string\",\n  \"destinationCity\": \"string\",\n  \"destinationCityIATA\": \"string\",\n  \"departureDate\": \"YYYY-MM-DD\",\n  \"returnDate\": \"YYYY-MM-DD\",\n  \"adults\": \"number\",\n  \"children\": \"number\"\n}\n\nResponda APENAS com JSON válido.\nNÃO use blocos de código (não use ```).\nNÃO coloque texto antes ou depois do JSON.\nNunca inclua quebras de linha nos valores. Remova espaços extras no início/fim.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -208,
+        0
+      ],
+      "id": "033e3b37-f4f6-4a43-96a6-f654358465d5",
+      "name": "AI Agent1",
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://test.api.amadeus.com/v1/security/oauth2/token",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "grant_type",
+              "value": "client_credentials"
+            },
+            {
+              "name": "client_id",
+              "value": "MPGjLikELueHrDGVkOscTWVsaiqh91s3"
+            },
+            {
+              "name": "client_secret",
+              "value": "ASUF9TFhBAxPUPbP"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        144,
+        0
+      ],
+      "id": "82647004-cc6a-4f4e-819a-9f45926ca79c",
+      "name": "Amadeus OAuth Token"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"originCity\": \"string\",\n  \"originCityIATA\": \"string\",\n  \"destinationCity\": \"string\",\n  \"destinationCityIATA\": \"string\",\n  \"departureDate\": \"string\",\n  \"returnDate\": \"string\",\n  \"adults\": \"number\",\n  \"children\": \"number\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -48,
+        208
+      ],
+      "id": "42d93b11-5f58-40b5-a601-ee5f915bdc53",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "url": "https://test.api.amadeus.com/v2/shopping/flight-offers",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "originLocationCode",
+              "value": "={{$node[\"AI Agent1\"].json.output.originCityIATA}}"
+            },
+            {
+              "name": "destinationLocationCode",
+              "value": "={{$node[\"AI Agent1\"].json.output.destinationCityIATA}}"
+            },
+            {
+              "name": "departureDate",
+              "value": "={{$node[\"AI Agent1\"].json.output.departureDate}}"
+            },
+            {
+              "name": "returnDate",
+              "value": "={{$node[\"AI Agent1\"].json.output.returnDate}}"
+            },
+            {
+              "name": "adults",
+              "value": "={{$node[\"AI Agent1\"].json.output.adults}}"
+            },
+            {
+              "name": "currencyCode",
+              "value": "BRL"
+            },
+            {
+              "name": "max",
+              "value": "5"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$node[\"Amadeus OAuth Token\"].json[\"access_token\"]}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        352,
+        0
+      ],
+      "id": "3ee4fcbc-bdae-47cc-a3d8-68c081b09ab0",
+      "name": "Buscar VOOS1"
+    },
+    {
+      "parameters": {
+        "url": "https://test.api.amadeus.com/v1/reference-data/locations/hotels/by-city",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "cityCode",
+              "value": "={{$node[\"AI Agent1\"].json.output.destinationCityIATA.replace(/[^A-Za-z]/g,'').toUpperCase()}}"
+            },
+            {
+              "name": "radius",
+              "value": "5"
+            },
+            {
+              "name": "radiusUnit",
+              "value": "KM"
+            },
+            {
+              "name": "hotelSource",
+              "value": "ALL"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$node[\"Amadeus OAuth Token\"].json.access_token}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        768,
+        0
+      ],
+      "id": "d892b61d-1010-4d57-8e9c-976bb5cd1d60",
+      "name": "Buscar Hotéis"
+    },
+    {
+      "parameters": {
+        "jsCode": "// O \"data\" do node anterior veio como string contendo um JSON completo.\n// Precisamos fazer parse 2x: primeiro o campo data (string) vira objeto;\n// depois pegamos o .data de dentro dele.\n\nlet payload = $json;\n\n// Se vier como string em payload.data, transforma em objeto\nif (typeof payload.data === 'string') {\n  payload = JSON.parse(payload.data);\n}\n\n// Agora payload.data deve ser um array\nconst data = Array.isArray(payload.data) ? payload.data : [];\n\nconst simplified = data.slice(0, 5).map((item) => {\n  // Nesse endpoint \"by-city\", o item já é hotel básico (não tem \"offers\")\n  return {\n    name: item.name || null,\n    hotelId: item.hotelId || null,\n    iataCode: item.iataCode || null,\n    cityName: item.address?.cityName || null,\n    address: item.address?.lines?.join(\", \") || null,\n    distanceKm: item.distance?.value ?? null,\n    geo: item.geoCode ? { lat: item.geoCode.latitude, lon: item.geoCode.longitude } : null\n  };\n});\n\nreturn [{ json: { hotelsByCity: simplified } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        944,
+        0
+      ],
+      "id": "06a20a45-f3c2-4e98-9db7-7aecc1b6f1ad",
+      "name": "Simplify Hotels"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1) Normaliza payload (às vezes o n8n guarda como string)\nlet payload = $json;\n\n// Caso 1: veio como string em payload.data (ou em payload.body)\nif (typeof payload.data === \"string\") {\n  payload = JSON.parse(payload.data);\n} else if (payload.body && typeof payload.body === \"string\") {\n  payload = JSON.parse(payload.body);\n} else if (payload.body && typeof payload.body === \"object\") {\n  payload = payload.body;\n}\n\n// 2) Pega lista de ofertas\nconst offers = Array.isArray(payload.data) ? payload.data : [];\nconst carriers = payload.dictionaries?.carriers || {};\n\n// Helpers\nfunction pickSegmentInfo(itinerary) {\n  const segs = itinerary?.segments || [];\n  if (!segs.length) return null;\n\n  const first = segs[0];\n  const last = segs[segs.length - 1];\n\n  return {\n    from: first.departure?.iataCode || null,\n    to: last.arrival?.iataCode || null,\n    departAt: first.departure?.at || null,\n    arriveAt: last.arrival?.at || null,\n    duration: itinerary?.duration || null,\n    stops: Math.max(0, segs.length - 1),\n    segments: segs.map(s => ({\n      from: s.departure?.iataCode || null,\n      to: s.arrival?.iataCode || null,\n      departAt: s.departure?.at || null,\n      arriveAt: s.arrival?.at || null,\n      carrierCode: s.carrierCode || null,\n      number: s.number || null,\n      duration: s.duration || null\n    }))\n  };\n}\n\nfunction airlineNameFromOffer(offer) {\n  const code =\n    (offer.validatingAirlineCodes && offer.validatingAirlineCodes[0]) ||\n    offer.itineraries?.[0]?.segments?.[0]?.carrierCode ||\n    null;\n\n  return {\n    code,\n    name: code ? (carriers[code] || code) : null\n  };\n}\n\n// 3) Simplifica\nconst simplified = offers.slice(0, 5).map((offer) => {\n  const priceTotal = offer.price?.total || null;\n  const currency = offer.price?.currency || null;\n\n  const airline = airlineNameFromOffer(offer);\n\n  const outbound = pickSegmentInfo(offer.itineraries?.[0]);\n  const inbound = pickSegmentInfo(offer.itineraries?.[1]);\n\n  return {\n    airline: airline.name,\n    airlineCode: airline.code,\n    price: { total: priceTotal, currency },\n    outbound,\n    inbound,\n    // opcional: guarda o id da oferta (às vezes útil depois)\n    offerId: offer.id || null\n  };\n});\n\n// 4) Saída pequena e limpa\nreturn [{\n  json: {\n    flightOffers: simplified,\n    meta: {\n      totalOffersReceived: offers.length\n    }\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        0
+      ],
+      "id": "6d920217-993d-42f7-9099-5bb18f82693d",
+      "name": "Simplify Flights"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -352,
+        208
+      ],
+      "id": "4f0a2e52-846b-4323-b045-dd130124e0b6",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "RfpwUsGUL9n2axUf",
+          "name": "yorkis.gamer32"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1136,
+        192
+      ],
+      "id": "a31b2f34-8ed3-44e4-80f1-544e8a36331b",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "RfpwUsGUL9n2axUf",
+          "name": "yorkis.gamer32"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        []
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Amadeus OAuth Token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Amadeus OAuth Token": {
+      "main": [
+        [
+          {
+            "node": "Buscar VOOS1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar VOOS1": {
+      "main": [
+        [
+          {
+            "node": "Simplify Flights",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Hotéis": {
+      "main": [
+        [
+          {
+            "node": "Simplify Hotels",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simplify Flights": {
+      "main": [
+        [
+          {
+            "node": "Buscar Hotéis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simplify Hotels": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "91cde3ec-4af7-4d59-9022-11dae2443700",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "22ea323b6c85fbb2de3a8dedaefae6ec8edb82e9c1e169fef139445834eee221"
+  },
+  "id": "60A_Ve-oXDnJxMixD2gXI",
+  "tags": []
+}
