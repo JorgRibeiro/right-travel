@@ -1,0 +1,11 @@
+# Ignora a pasta de dados do n8n (se ela for criada localmente)
+.n8n/
+n8n_data/
+
+# Arquivos de sistema e IDE
+.DS_Store
+.vscode/
+.idea/
+
+# Variáveis de ambiente (MUITO IMPORTANTE se usarem .env)
+.env
