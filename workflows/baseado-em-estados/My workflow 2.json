@@ -13,10 +13,10 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
       "position": [
-        240,
-        -80
+        3984,
+        1248
       ],
-      "id": "d53ea9ab-d870-4164-82ac-2e3e103b0aea",
+      "id": "36fc3b18-5ed1-4d78-bbf1-7b4ff2bc83b7",
       "name": "AI Agent1",
       "notesInFlow": false
     },
@@ -47,10 +47,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        592,
-        -80
+        4336,
+        1248
       ],
-      "id": "6cab0867-56bd-4744-9913-64282340c053",
+      "id": "292fdbee-b455-4cab-b140-7860eab7fd8a",
       "name": "Amadeus OAuth Token"
     },
     {
@@ -60,10 +60,10 @@
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.3,
       "position": [
-        384,
-        160
+        4128,
+        1472
       ],
-      "id": "e8c6092e-aaef-4df4-9a39-f69e9cee422b",
+      "id": "a8ad0912-3e8d-4cc0-ab6b-de7b2843e111",
       "name": "Structured Output Parser"
     },
     {
@@ -116,10 +116,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        816,
-        -80
+        4560,
+        1248
       ],
-      "id": "de5ee1e3-9e44-4430-9e64-536ce0600955",
+      "id": "0f7f48a5-bcb4-4fa0-85cb-f8629ca0be82",
       "name": "Buscar VOOS1"
     },
     {
@@ -176,10 +176,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1264,
-        -80
+        5008,
+        1248
       ],
-      "id": "4bf5a6cd-a419-4dec-83b0-66639c44780f",
+      "id": "2e5c5531-81c0-4d02-b91f-84edd0ea36b7",
       "name": "Buscar Hotéis"
     },
     {
@@ -189,10 +189,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1488,
-        64
+        5232,
+        1376
       ],
-      "id": "859c6fcd-2f21-46ae-b96a-f20a7941f3e0",
+      "id": "67cb79fd-03f4-486c-8f75-271005a4f658",
       "name": "Simplify Hotels"
     },
     {
@@ -202,14 +202,16 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1040,
-        -80
+        4784,
+        1248
       ],
-      "id": "aa1cb084-aa5c-42d4-b91d-b90c82db1c5e",
+      "id": "31d09327-41c2-4180-a1da-9504a406d5de",
       "name": "Simplify Flights"
     },
     {
       "parameters": {
+        "promptType": "define",
+        "text": "=A solicitação original do usuário foi:\n{{ $('When chat message received').first().json.chatInput }}\n\nDados de Hotéis (se houver):\n{{ $('Simplify Hotels').isExecuted ? JSON.stringify($('Simplify Hotels').item.json.hotelOffers) : \"Nenhum hotel buscado ainda\" }}\n\nDados de Voos (se houver):\n{{ $('Simplify Flights').isExecuted ? JSON.stringify($('Simplify Flights').item.json.flightOffers) : \"Nenhum voo buscado ainda\" }}",
         "hasOutputParser": true,
         "options": {
           "systemMessage": "Você é o Supervisor de um fluxo de reserva de viagens. Sua função é analisar a conversa e decidir o próximo passo.\n\nESTADOS DISPONÍVEIS:\n\n    ASK_USER: Se campos obrigatórios (Destino ou Data de Ida) estiverem ausentes.\n\n    SEARCH: Se todos os campos obrigatórios estiverem presentes.\n\n    COMPLETE: Se a memória já contiver os resultados da pesquisa (voos/hotéis).\n\nREGRAS DE EXTRAÇÃO:\n\n    Obrigatórios: destinationCity, departureDate, originCity\n\n    Opcionais (com defaults):\n\n        adults: Se ausente, use 1.\n\n        children: Se ausente, use 0.\n\n        year: Se ausente, use 2026.\n\n    IATA: Sempre tente inferir o código IATA de 3 letras das cidades.\n\nLÓGICA DE DECISÃO:\n\n    Verifique o Histórico: Se as APIs já retornaram dados, sua decision é \"COMPLETE\" e você deve formatar a user_message final.\n\n    Verifique o Prompt: Se o usuário quer viajar mas não disse para onde ou quando, sua decision é \"ASK_USER\" e a user_message deve ser uma pergunta gentil.\n\n    Se houver dados suficientes, decision é \"SEARCH\".\n\nFORMATO DE SAÍDA OBRIGATÓRIO (JSON): Responda APENAS o JSON abaixo, sem blocos de código ou explicações. { \"decision\": \"SEARCH\" | \"ASK_USER\" | \"COMPLETE\", \"missing_info\": [], \"user_message\": \"Sua mensagem aqui\", \"search_params\": { ... } }"
@@ -218,10 +220,10 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
       "position": [
-        -400,
-        -144
+        3360,
+        944
       ],
-      "id": "07297e0a-961c-4be8-84b2-91bde8901369",
+      "id": "c24a83f9-e407-4ba3-a6f7-b34139f4b308",
       "name": "AI Agent"
     },
     {
@@ -231,10 +233,10 @@
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.3,
       "position": [
-        -192,
-        80
+        3552,
+        1168
       ],
-      "id": "c70716e3-eac8-4734-83bf-60df7f163fdf",
+      "id": "2f2abf7e-4a77-4a35-aaa5-c62648d8f4f4",
       "name": "Structured Output Parser1"
     },
     {
@@ -242,10 +244,10 @@
       "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
       "typeVersion": 1.3,
       "position": [
-        -320,
-        80
+        3424,
+        1168
       ],
-      "id": "1ac672b5-542b-4a57-954e-c70d205e744e",
+      "id": "33b3c118-112a-4ea2-b1fc-e211a66c3742",
       "name": "Simple Memory1"
     },
     {
@@ -257,10 +259,10 @@
       "type": "@n8n/n8n-nodes-langchain.chatTrigger",
       "typeVersion": 1.4,
       "position": [
-        -672,
-        -144
+        2848,
+        1168
       ],
-      "id": "d5099149-8fa1-40c8-bca7-d343544eaa06",
+      "id": "14a48e5c-cea7-4111-949e-35a8ed0376d0",
       "name": "When chat message received",
       "webhookId": "c686848c-b36e-4c28-abea-074f4f05a592"
     },
@@ -279,10 +281,10 @@
                 "conditions": [
                   {
                     "leftValue": "={{ $json.output.decision }}",
-                    "rightValue": "=ASK_USER",
+                    "rightValue": "=SEARCH",
                     "operator": {
                       "type": "string",
-                      "operation": "equals"
+                      "operation": "notEquals"
                     },
                     "id": "d394fcb2-a04a-4a7c-97e1-e629b65b1286"
                   }
@@ -305,8 +307,7 @@
                     "rightValue": "SEARCH",
                     "operator": {
                       "type": "string",
-                      "operation": "equals",
-                      "name": "filter.operator.equals"
+                      "operation": "equals"
                     }
                   }
                 ],
@@ -320,61 +321,63 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.4,
       "position": [
-        16,
-        -368
+        3760,
+        944
       ],
-      "id": "6545f897-8fba-4a20-a222-b4c6ccee54f3",
+      "id": "9e2a0555-ea6d-4d3d-a66b-f9432ac91d51",
       "name": "Switch"
     },
     {
       "parameters": {
-        "message": "={{ $('AI Agent').item.json.output.user_message }}",
+        "message": "={{ $json.output.user_message }}",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.chat",
       "typeVersion": 1,
       "position": [
-        304,
-        -368
+        4064,
+        928
       ],
-      "id": "74ffd1cf-b97b-4689-be9d-b7a3421769fb",
+      "id": "324bc922-71c3-4460-ae2e-625b5acebde4",
       "name": "Respond to Chat"
     },
     {
       "parameters": {
+        "modelName": "models/gemini-3-flash-preview",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
       "typeVersion": 1,
       "position": [
-        240,
-        160
+        4000,
+        1472
       ],
-      "id": "814dab13-5c68-45b3-ba4e-a46edffdafc7",
+      "id": "8d09e97b-5908-4a97-857b-83ab5f58a3ca",
       "name": "Google Gemini Chat Model2",
       "credentials": {
         "googlePalmApi": {
-          "id": "wRm9vNM1G2DgJQgv",
-          "name": "Google Gemini(PaLM) www.raylandsoncs"
+          "id": "RfpwUsGUL9n2axUf",
+          "name": "yorkis.gamer32"
         }
       }
     },
     {
       "parameters": {
+        "modelName": "models/gemini-3-flash-preview",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
       "typeVersion": 1,
       "position": [
-        -448,
-        80
+        3296,
+        1168
       ],
-      "id": "055a27e6-b6b3-472a-a40c-b84355aace18",
+      "id": "f4d3e4e5-e8e8-4991-b53a-bab3117a6745",
       "name": "Google Gemini Chat Model",
       "credentials": {
         "googlePalmApi": {
-          "id": "wRm9vNM1G2DgJQgv",
-          "name": "Google Gemini(PaLM) www.raylandsoncs"
+          "id": "RfpwUsGUL9n2axUf",
+          "name": "yorkis.gamer32"
         }
       }
     }
@@ -559,11 +562,11 @@
     "executionOrder": "v1",
     "availableInMCP": false
   },
-  "versionId": "464bae5f-efe9-4bc8-9374-c78716e8523e",
+  "versionId": "c3e832d8-a78c-43f4-9b55-36a17e9ee26a",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "edc4a4812a5e5b087f04d30477d7da717fc4ce831ba8a367e362999b444580ee"
+    "instanceId": "22ea323b6c85fbb2de3a8dedaefae6ec8edb82e9c1e169fef139445834eee221"
   },
-  "id": "f5etlM8DPiUj8DaxKKyEV",
+  "id": "60A_Ve-oXDnJxMixD2gXI",
   "tags": []
 }
