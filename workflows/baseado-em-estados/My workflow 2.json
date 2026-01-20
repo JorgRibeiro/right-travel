@@ -4,7 +4,7 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "={{$json.chatInput}}\n",
+        "text": "={{ $json.output.search_params }}",
         "hasOutputParser": true,
         "options": {
           "systemMessage": "Você é um Agente LLM Baseado em estados (Condition → Action).\nVocê mantém estado, possui memória e planeja em múltiplos passos.\n\nTarefa:\n- Extrair: cidade de origem e IATA dessa cidade, cidade de destino e IATA dessa cidade, data de ida, data de volta, adultos e crianças.\n- Se faltar ano, usar 2026.\n- Se faltar cidade de origem, usar Recife.\n- Se faltar passageiros, usar adults=1 e children=0.\n- Retornar APENAS JSON válido.\n\nFormato obrigatório de saída:\n{\n  \"originCity\": \"string\",\n  \"originCityIATA\": \"string\",\n  \"destinationCity\": \"string\",\n  \"destinationCityIATA\": \"string\",\n  \"departureDate\": \"YYYY-MM-DD\",\n  \"returnDate\": \"YYYY-MM-DD\",\n  \"adults\": \"number\",\n  \"children\": \"number\"\n}\n\nResponda APENAS com JSON válido.\nNÃO use blocos de código (não use ```).\nNÃO coloque texto antes ou depois do JSON.\nNunca inclua quebras de linha nos valores. Remova espaços extras no início/fim.\n"
@@ -14,7 +14,7 @@
       "typeVersion": 3.1,
       "position": [
         240,
-        -72
+        -80
       ],
       "id": "d53ea9ab-d870-4164-82ac-2e3e103b0aea",
       "name": "AI Agent1",
@@ -48,7 +48,7 @@
       "typeVersion": 4.3,
       "position": [
         592,
-        -72
+        -80
       ],
       "id": "6cab0867-56bd-4744-9913-64282340c053",
       "name": "Amadeus OAuth Token"
@@ -60,8 +60,8 @@
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.3,
       "position": [
-        376,
-        152
+        384,
+        160
       ],
       "id": "e8c6092e-aaef-4df4-9a39-f69e9cee422b",
       "name": "Structured Output Parser"
@@ -117,7 +117,7 @@
       "typeVersion": 4.3,
       "position": [
         816,
-        -72
+        -80
       ],
       "id": "de5ee1e3-9e44-4430-9e64-536ce0600955",
       "name": "Buscar VOOS1"
@@ -177,7 +177,7 @@
       "typeVersion": 4.3,
       "position": [
         1264,
-        -72
+        -80
       ],
       "id": "4bf5a6cd-a419-4dec-83b0-66639c44780f",
       "name": "Buscar Hotéis"
@@ -190,7 +190,7 @@
       "typeVersion": 2,
       "position": [
         1488,
-        -72
+        64
       ],
       "id": "859c6fcd-2f21-46ae-b96a-f20a7941f3e0",
       "name": "Simplify Hotels"
@@ -203,7 +203,7 @@
       "typeVersion": 2,
       "position": [
         1040,
-        -72
+        -80
       ],
       "id": "aa1cb084-aa5c-42d4-b91d-b90c82db1c5e",
       "name": "Simplify Flights"
@@ -218,8 +218,8 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
       "position": [
-        -392,
-        -320
+        -400,
+        -144
       ],
       "id": "07297e0a-961c-4be8-84b2-91bde8901369",
       "name": "AI Agent"
@@ -232,7 +232,7 @@
       "typeVersion": 1.3,
       "position": [
         -192,
-        -96
+        80
       ],
       "id": "c70716e3-eac8-4734-83bf-60df7f163fdf",
       "name": "Structured Output Parser1"
@@ -243,7 +243,7 @@
       "typeVersion": 1.3,
       "position": [
         -320,
-        -96
+        80
       ],
       "id": "1ac672b5-542b-4a57-954e-c70d205e744e",
       "name": "Simple Memory1"
@@ -258,7 +258,7 @@
       "typeVersion": 1.4,
       "position": [
         -672,
-        -320
+        -144
       ],
       "id": "d5099149-8fa1-40c8-bca7-d343544eaa06",
       "name": "When chat message received",
@@ -342,7 +342,6 @@
     },
     {
       "parameters": {
-        "modelName": "models/gemma-3-27b-it",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
@@ -368,7 +367,7 @@
       "typeVersion": 1,
       "position": [
         -448,
-        -96
+        80
       ],
       "id": "055a27e6-b6b3-472a-a40c-b84355aace18",
       "name": "Google Gemini Chat Model",
@@ -439,7 +438,13 @@
     },
     "Simplify Hotels": {
       "main": [
-        []
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     },
     "Simplify Flights": {
@@ -554,7 +559,7 @@
     "executionOrder": "v1",
     "availableInMCP": false
   },
-  "versionId": "070e3c06-3a96-47fe-bbb1-044960351216",
+  "versionId": "464bae5f-efe9-4bc8-9374-c78716e8523e",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "edc4a4812a5e5b087f04d30477d7da717fc4ce831ba8a367e362999b444580ee"
