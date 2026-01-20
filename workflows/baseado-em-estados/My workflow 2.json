@@ -211,7 +211,7 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "=A solicitação original do usuário foi:\n{{ $('When chat message received').first().json.chatInput }}\n\nDados de Hotéis (se houver):\n{{ $('Simplify Hotels').isExecuted ? JSON.stringify($('Simplify Hotels').item.json.hotelOffers) : \"Nenhum hotel buscado ainda\" }}\n\nDados de Voos (se houver):\n{{ $('Simplify Flights').isExecuted ? JSON.stringify($('Simplify Flights').item.json.flightOffers) : \"Nenhum voo buscado ainda\" }}",
+        "text": "=Solicitação do usuário (Atual):\n{{ $('Respond to Chat').isExecuted && $('Respond to Chat').item.json.chatInput ? $('Respond to Chat').item.json.chatInput : $('When chat message received').item.json.chatInput }}\n\nDados de Hotéis (se houver):\n{{ $('Simplify Hotels').isExecuted ? JSON.stringify($('Simplify Hotels').item.json.hotelOffers) : \"Nenhum hotel buscado ainda\" }}\n\nDados de Voos (se houver):\n{{ $('Simplify Flights').isExecuted ? JSON.stringify($('Simplify Flights').item.json.flightOffers) : \"Nenhum voo buscado ainda\" }}",
         "hasOutputParser": true,
         "options": {
           "systemMessage": "Você é o Supervisor de um fluxo de reserva de viagens. Sua função é analisar a conversa e decidir o próximo passo.\n\nESTADOS DISPONÍVEIS:\n\n    ASK_USER: Se campos obrigatórios (Destino ou Data de Ida) estiverem ausentes.\n\n    SEARCH: Se todos os campos obrigatórios estiverem presentes.\n\n    COMPLETE: Se a memória já contiver os resultados da pesquisa (voos/hotéis).\n\nREGRAS DE EXTRAÇÃO:\n\n    Obrigatórios: destinationCity, departureDate, originCity\n\n    Opcionais (com defaults):\n\n        adults: Se ausente, use 1.\n\n        children: Se ausente, use 0.\n\n        year: Se ausente, use 2026.\n\n    IATA: Sempre tente inferir o código IATA de 3 letras das cidades.\n\nLÓGICA DE DECISÃO:\n\n    Verifique o Histórico: Se as APIs já retornaram dados, sua decision é \"COMPLETE\" e você deve formatar a user_message final.\n\n    Verifique o Prompt: Se o usuário quer viajar mas não disse para onde ou quando, sua decision é \"ASK_USER\" e a user_message deve ser uma pergunta gentil.\n\n    Se houver dados suficientes, decision é \"SEARCH\".\n\nFORMATO DE SAÍDA OBRIGATÓRIO (JSON): Responda APENAS o JSON abaixo, sem blocos de código ou explicações. { \"decision\": \"SEARCH\" | \"ASK_USER\" | \"COMPLETE\", \"missing_info\": [], \"user_message\": \"Sua mensagem aqui\", \"search_params\": { ... } }"
@@ -562,7 +562,7 @@
     "executionOrder": "v1",
     "availableInMCP": false
   },
-  "versionId": "c3e832d8-a78c-43f4-9b55-36a17e9ee26a",
+  "versionId": "5c791b78-b1cb-4cfa-a146-a101034f32cc",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "22ea323b6c85fbb2de3a8dedaefae6ec8edb82e9c1e169fef139445834eee221"
