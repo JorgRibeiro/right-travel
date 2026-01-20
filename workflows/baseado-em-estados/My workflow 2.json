@@ -1,0 +1,564 @@
+{
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{$json.chatInput}}\n",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "Você é um Agente LLM Baseado em estados (Condition → Action).\nVocê mantém estado, possui memória e planeja em múltiplos passos.\n\nTarefa:\n- Extrair: cidade de origem e IATA dessa cidade, cidade de destino e IATA dessa cidade, data de ida, data de volta, adultos e crianças.\n- Se faltar ano, usar 2026.\n- Se faltar cidade de origem, usar Recife.\n- Se faltar passageiros, usar adults=1 e children=0.\n- Retornar APENAS JSON válido.\n\nFormato obrigatório de saída:\n{\n  \"originCity\": \"string\",\n  \"originCityIATA\": \"string\",\n  \"destinationCity\": \"string\",\n  \"destinationCityIATA\": \"string\",\n  \"departureDate\": \"YYYY-MM-DD\",\n  \"returnDate\": \"YYYY-MM-DD\",\n  \"adults\": \"number\",\n  \"children\": \"number\"\n}\n\nResponda APENAS com JSON válido.\nNÃO use blocos de código (não use ```).\nNÃO coloque texto antes ou depois do JSON.\nNunca inclua quebras de linha nos valores. Remova espaços extras no início/fim.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        240,
+        -72
+      ],
+      "id": "d53ea9ab-d870-4164-82ac-2e3e103b0aea",
+      "name": "AI Agent1",
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://test.api.amadeus.com/v1/security/oauth2/token",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "grant_type",
+              "value": "client_credentials"
+            },
+            {
+              "name": "client_id",
+              "value": "MPGjLikELueHrDGVkOscTWVsaiqh91s3"
+            },
+            {
+              "name": "client_secret",
+              "value": "ASUF9TFhBAxPUPbP"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        592,
+        -72
+      ],
+      "id": "6cab0867-56bd-4744-9913-64282340c053",
+      "name": "Amadeus OAuth Token"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"originCity\": \"string\",\n  \"originCityIATA\": \"string\",\n  \"destinationCity\": \"string\",\n  \"destinationCityIATA\": \"string\",\n  \"departureDate\": \"string\",\n  \"returnDate\": \"string\",\n  \"adults\": \"number\",\n  \"children\": \"number\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        376,
+        152
+      ],
+      "id": "e8c6092e-aaef-4df4-9a39-f69e9cee422b",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "url": "https://test.api.amadeus.com/v2/shopping/flight-offers",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "originLocationCode",
+              "value": "={{$node[\"AI Agent1\"].json.output.originCityIATA}}"
+            },
+            {
+              "name": "destinationLocationCode",
+              "value": "={{$node[\"AI Agent1\"].json.output.destinationCityIATA}}"
+            },
+            {
+              "name": "departureDate",
+              "value": "={{$node[\"AI Agent1\"].json.output.departureDate}}"
+            },
+            {
+              "name": "returnDate",
+              "value": "={{$node[\"AI Agent1\"].json.output.returnDate}}"
+            },
+            {
+              "name": "adults",
+              "value": "={{$node[\"AI Agent1\"].json.output.adults}}"
+            },
+            {
+              "name": "currencyCode",
+              "value": "BRL"
+            },
+            {
+              "name": "max",
+              "value": "5"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$node[\"Amadeus OAuth Token\"].json[\"access_token\"]}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        816,
+        -72
+      ],
+      "id": "de5ee1e3-9e44-4430-9e64-536ce0600955",
+      "name": "Buscar VOOS1"
+    },
+    {
+      "parameters": {
+        "url": "https://serpapi.com/search.json",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "engine",
+              "value": "google_hotels"
+            },
+            {
+              "name": "q",
+              "value": "={{ \"hotels in \" + $node[\"AI Agent1\"].json.output.destinationCity }}"
+            },
+            {
+              "name": "check_in_date",
+              "value": "={{$node[\"AI Agent1\"].json.output.departureDate}}"
+            },
+            {
+              "name": "check_out_date",
+              "value": "={{$node[\"AI Agent1\"].json.output.returnDate}}"
+            },
+            {
+              "name": "adults",
+              "value": "={{ parseInt($node[\"AI Agent1\"].json.output.adults, 10) }}"
+            },
+            {
+              "name": "currency",
+              "value": "BRL"
+            },
+            {
+              "name": "sort_by",
+              "value": "3"
+            },
+            {
+              "name": "api_key",
+              "value": "713d53c97101db5efe89c07168ebc9aea138a55ca118ab21ea71fccff0077036"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$node[\"Amadeus OAuth Token\"].json.access_token}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1264,
+        -72
+      ],
+      "id": "4bf5a6cd-a419-4dec-83b0-66639c44780f",
+      "name": "Buscar Hotéis"
+    },
+    {
+      "parameters": {
+        "jsCode": "const res = $json;\n\n// dependendo da config do n8n, pode vir em body\nconst payload = res.body && typeof res.body === 'object' ? res.body : res;\n\nconst props = payload.properties || [];\nconst simplified = props.slice(0, 5).map((p) => ({\n  name: p.name || null,\n  address: p.address || null,\n  rating: p.overall_rating ?? p.rating ?? null,\n  reviews: p.reviews ?? null,\n  price_per_night: p.rate_per_night?.lowest ?? p.rate_per_night ?? null,\n  total_rate: p.total_rate ?? null,\n  currency: p.rate_per_night?.currency ?? p.currency ?? \"BRL\",\n  link: p.link || null\n}));\n\nreturn [{ json: { hotelOffers: simplified } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1488,
+        -72
+      ],
+      "id": "859c6fcd-2f21-46ae-b96a-f20a7941f3e0",
+      "name": "Simplify Hotels"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1) Normaliza payload (às vezes o n8n guarda como string)\nlet payload = $json;\n\n// Caso 1: veio como string em payload.data (ou em payload.body)\nif (typeof payload.data === \"string\") {\n  payload = JSON.parse(payload.data);\n} else if (payload.body && typeof payload.body === \"string\") {\n  payload = JSON.parse(payload.body);\n} else if (payload.body && typeof payload.body === \"object\") {\n  payload = payload.body;\n}\n\n// 2) Pega lista de ofertas\nconst offers = Array.isArray(payload.data) ? payload.data : [];\nconst carriers = payload.dictionaries?.carriers || {};\n\n// Helpers\nfunction pickSegmentInfo(itinerary) {\n  const segs = itinerary?.segments || [];\n  if (!segs.length) return null;\n\n  const first = segs[0];\n  const last = segs[segs.length - 1];\n\n  return {\n    from: first.departure?.iataCode || null,\n    to: last.arrival?.iataCode || null,\n    departAt: first.departure?.at || null,\n    arriveAt: last.arrival?.at || null,\n    duration: itinerary?.duration || null,\n    stops: Math.max(0, segs.length - 1),\n    segments: segs.map(s => ({\n      from: s.departure?.iataCode || null,\n      to: s.arrival?.iataCode || null,\n      departAt: s.departure?.at || null,\n      arriveAt: s.arrival?.at || null,\n      carrierCode: s.carrierCode || null,\n      number: s.number || null,\n      duration: s.duration || null\n    }))\n  };\n}\n\nfunction airlineNameFromOffer(offer) {\n  const code =\n    (offer.validatingAirlineCodes && offer.validatingAirlineCodes[0]) ||\n    offer.itineraries?.[0]?.segments?.[0]?.carrierCode ||\n    null;\n\n  return {\n    code,\n    name: code ? (carriers[code] || code) : null\n  };\n}\n\n// 3) Simplifica\nconst simplified = offers.slice(0, 5).map((offer) => {\n  const priceTotal = offer.price?.total || null;\n  const currency = offer.price?.currency || null;\n\n  const airline = airlineNameFromOffer(offer);\n\n  const outbound = pickSegmentInfo(offer.itineraries?.[0]);\n  const inbound = pickSegmentInfo(offer.itineraries?.[1]);\n\n  return {\n    airline: airline.name,\n    airlineCode: airline.code,\n    price: { total: priceTotal, currency },\n    outbound,\n    inbound,\n    // opcional: guarda o id da oferta (às vezes útil depois)\n    offerId: offer.id || null\n  };\n});\n\n// 4) Saída pequena e limpa\nreturn [{\n  json: {\n    flightOffers: simplified,\n    meta: {\n      totalOffersReceived: offers.length\n    }\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        -72
+      ],
+      "id": "aa1cb084-aa5c-42d4-b91d-b90c82db1c5e",
+      "name": "Simplify Flights"
+    },
+    {
+      "parameters": {
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "Você é o Supervisor de um fluxo de reserva de viagens. Sua função é analisar a conversa e decidir o próximo passo.\n\nESTADOS DISPONÍVEIS:\n\n    ASK_USER: Se campos obrigatórios (Destino ou Data de Ida) estiverem ausentes.\n\n    SEARCH: Se todos os campos obrigatórios estiverem presentes.\n\n    COMPLETE: Se a memória já contiver os resultados da pesquisa (voos/hotéis).\n\nREGRAS DE EXTRAÇÃO:\n\n    Obrigatórios: destinationCity, departureDate, originCity\n\n    Opcionais (com defaults):\n\n        adults: Se ausente, use 1.\n\n        children: Se ausente, use 0.\n\n        year: Se ausente, use 2026.\n\n    IATA: Sempre tente inferir o código IATA de 3 letras das cidades.\n\nLÓGICA DE DECISÃO:\n\n    Verifique o Histórico: Se as APIs já retornaram dados, sua decision é \"COMPLETE\" e você deve formatar a user_message final.\n\n    Verifique o Prompt: Se o usuário quer viajar mas não disse para onde ou quando, sua decision é \"ASK_USER\" e a user_message deve ser uma pergunta gentil.\n\n    Se houver dados suficientes, decision é \"SEARCH\".\n\nFORMATO DE SAÍDA OBRIGATÓRIO (JSON): Responda APENAS o JSON abaixo, sem blocos de código ou explicações. { \"decision\": \"SEARCH\" | \"ASK_USER\" | \"COMPLETE\", \"missing_info\": [], \"user_message\": \"Sua mensagem aqui\", \"search_params\": { ... } }"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -392,
+        -320
+      ],
+      "id": "07297e0a-961c-4be8-84b2-91bde8901369",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"decision\": \"string\",\n  \"missing_info\": [\"string\"],\n  \"user_message\": \"string\",\n  \"search_params\": {\n    \"originCity\": \"string\",\n    \"originCityIATA\": \"string\",\n    \"destinationCity\": \"string\",\n    \"destinationCityIATA\": \"string\",\n    \"departureDate\": \"string\",\n    \"returnDate\": \"string\",\n    \"adults\": \"number\",\n    \"children\": \"number\"\n  }\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -192,
+        -96
+      ],
+      "id": "c70716e3-eac8-4734-83bf-60df7f163fdf",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -320,
+        -96
+      ],
+      "id": "1ac672b5-542b-4a57-954e-c70d205e744e",
+      "name": "Simple Memory1"
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseMode": "responseNodes"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -672,
+        -320
+      ],
+      "id": "d5099149-8fa1-40c8-bca7-d343544eaa06",
+      "name": "When chat message received",
+      "webhookId": "c686848c-b36e-4c28-abea-074f4f05a592"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.output.decision }}",
+                    "rightValue": "=ASK_USER",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "d394fcb2-a04a-4a7c-97e1-e629b65b1286"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "2c118af7-6edf-491d-a211-995f64afbc74",
+                    "leftValue": "={{ $json.output.decision }}",
+                    "rightValue": "SEARCH",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        16,
+        -368
+      ],
+      "id": "6545f897-8fba-4a20-a222-b4c6ccee54f3",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "message": "={{ $('AI Agent').item.json.output.user_message }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chat",
+      "typeVersion": 1,
+      "position": [
+        304,
+        -368
+      ],
+      "id": "74ffd1cf-b97b-4689-be9d-b7a3421769fb",
+      "name": "Respond to Chat"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemma-3-27b-it",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        240,
+        160
+      ],
+      "id": "814dab13-5c68-45b3-ba4e-a46edffdafc7",
+      "name": "Google Gemini Chat Model2",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "wRm9vNM1G2DgJQgv",
+          "name": "Google Gemini(PaLM) www.raylandsoncs"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -448,
+        -96
+      ],
+      "id": "055a27e6-b6b3-472a-a40c-b84355aace18",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "wRm9vNM1G2DgJQgv",
+          "name": "Google Gemini(PaLM) www.raylandsoncs"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Amadeus OAuth Token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Amadeus OAuth Token": {
+      "main": [
+        [
+          {
+            "node": "Buscar VOOS1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar VOOS1": {
+      "main": [
+        [
+          {
+            "node": "Simplify Flights",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Hotéis": {
+      "main": [
+        [
+          {
+            "node": "Simplify Hotels",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simplify Hotels": {
+      "main": [
+        []
+      ]
+    },
+    "Simplify Flights": {
+      "main": [
+        [
+          {
+            "node": "Buscar Hotéis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Respond to Chat",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Chat": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "070e3c06-3a96-47fe-bbb1-044960351216",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "edc4a4812a5e5b087f04d30477d7da717fc4ce831ba8a367e362999b444580ee"
+  },
+  "id": "f5etlM8DPiUj8DaxKKyEV",
+  "tags": []
+}
