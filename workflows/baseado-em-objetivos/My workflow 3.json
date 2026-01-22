@@ -3,124 +3,94 @@
   "nodes": [
     {
       "parameters": {
-        "promptType": "define",
-        "text": "={{ $json.output.search_params }}",
         "hasOutputParser": true,
         "options": {
-          "systemMessage": "Você é um Agente LLM Baseado em estados (Condition → Action).\nVocê mantém estado, possui memória e planeja em múltiplos passos.\n\nTarefa:\n- Extrair: cidade de origem e IATA dessa cidade, cidade de destino e IATA dessa cidade, data de ida, data de volta, adultos e crianças.\n- Se faltar ano, usar 2026.\n- Se faltar cidade de origem, usar Recife.\n- Se faltar passageiros, usar adults=1 e children=0.\n- Retornar APENAS JSON válido.\n\nFormato obrigatório de saída:\n{\n  \"originCity\": \"string\",\n  \"originCityIATA\": \"string\",\n  \"destinationCity\": \"string\",\n  \"destinationCityIATA\": \"string\",\n  \"departureDate\": \"YYYY-MM-DD\",\n  \"returnDate\": \"YYYY-MM-DD\",\n  \"adults\": \"number\",\n  \"children\": \"number\"\n}\n\nResponda APENAS com JSON válido.\nNÃO use blocos de código (não use ```).\nNÃO coloque texto antes ou depois do JSON.\nNunca inclua quebras de linha nos valores. Remova espaços extras no início/fim.\n"
+          "systemMessage": "Você é um Agente LLM **Baseado em Objetivos (Goal-Based)**.\nVocê mantém memória, acompanha progresso e escolhe ações para alcançar o objetivo do usuário.\n\nOBJETIVO PRINCIPAL:\n-  Ajudar o usuário a planejar uma viagem de acordo com as especificações redigidas pelo mesmo.\n\nSUBOBJETIVOS (em ordem):\n1) Entender intenção do usuário (viagem) e extrair parâmetros.\n2) Se o usuário fizer a requisição, acionar busca de APIs (voos/hotéis).\n3) Ter critério de parada especificado pelo usuário.\n4) Gerar os estados intermediários.\n5) Quando resultados existirem, montar resposta final rica e amigável.\n\nVERIFICAÇÃO DE PROGRESSO (Goal tracking):\n- Crie um plano de ação e define ele em passos.\n- A cada passo, avalie o seu progresso e defina a distancia semântica entre o estado atual e o estado desejado.\n",
+          "returnIntermediateSteps": true
         }
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
       "position": [
-        1296,
-        144
+        -1760,
+        48
       ],
-      "id": "5a3fc20b-6643-4d4c-8051-2422aab6f257",
-      "name": "AI Agent1",
-      "notesInFlow": false
+      "id": "a642e397-1f45-475b-891a-5c90977ec392",
+      "name": "AI Agent"
     },
     {
-      "parameters": {
-        "method": "POST",
-        "url": "https://test.api.amadeus.com/v1/security/oauth2/token",
-        "sendBody": true,
-        "contentType": "form-urlencoded",
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "grant_type",
-              "value": "client_credentials"
-            },
-            {
-              "name": "client_id",
-              "value": "MPGjLikELueHrDGVkOscTWVsaiqh91s3"
-            },
-            {
-              "name": "client_secret",
-              "value": "ASUF9TFhBAxPUPbP"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        1648,
-        144
-      ],
-      "id": "415a60fd-30f6-41f4-80b2-abf35c168cbd",
-      "name": "Amadeus OAuth Token"
-    },
-    {
-      "parameters": {
-        "jsonSchemaExample": "{\n  \"originCity\": \"string\",\n  \"originCityIATA\": \"string\",\n  \"destinationCity\": \"string\",\n  \"destinationCityIATA\": \"string\",\n  \"departureDate\": \"string\",\n  \"returnDate\": \"string\",\n  \"adults\": \"number\",\n  \"children\": \"number\"\n}"
-      },
-      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
       "typeVersion": 1.3,
       "position": [
-        1440,
-        368
+        -1840,
+        336
       ],
-      "id": "ea7fcd50-9737-4e2b-a17a-cdd3a9d38116",
-      "name": "Structured Output Parser"
+      "id": "2b881d6c-fa60-408b-8b0f-2ee0ab31bdd5",
+      "name": "Simple Memory1"
     },
     {
       "parameters": {
-        "url": "https://test.api.amadeus.com/v2/shopping/flight-offers",
-        "sendQuery": true,
-        "queryParameters": {
-          "parameters": [
-            {
-              "name": "originLocationCode",
-              "value": "={{$node[\"AI Agent1\"].json.output.originCityIATA}}"
-            },
-            {
-              "name": "destinationLocationCode",
-              "value": "={{$node[\"AI Agent1\"].json.output.destinationCityIATA}}"
-            },
-            {
-              "name": "departureDate",
-              "value": "={{$node[\"AI Agent1\"].json.output.departureDate}}"
-            },
-            {
-              "name": "returnDate",
-              "value": "={{$node[\"AI Agent1\"].json.output.returnDate}}"
-            },
-            {
-              "name": "adults",
-              "value": "={{$node[\"AI Agent1\"].json.output.adults}}"
-            },
-            {
-              "name": "currencyCode",
-              "value": "BRL"
-            },
-            {
-              "name": "max",
-              "value": "5"
-            }
-          ]
-        },
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "Authorization",
-              "value": "=Bearer {{$node[\"Amadeus OAuth Token\"].json[\"access_token\"]}}"
-            }
-          ]
-        },
+        "options": {
+          "responseMode": "responseNodes"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -2496,
+        64
+      ],
+      "id": "5db96a59-c95e-4a7f-b388-0330b757ac03",
+      "name": "When chat message received",
+      "webhookId": "c686848c-b36e-4c28-abea-074f4f05a592",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-flash-latest",
         "options": {}
       },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
       "position": [
-        1872,
-        144
+        -2048,
+        352
       ],
-      "id": "88247c5b-310b-4cef-bcc9-1a1c8dd658c1",
-      "name": "Buscar VOOS1"
+      "id": "0f45140b-d52c-47d8-a092-2c7f2cd23a95",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "KIpRZQBFu1mZxJxb",
+          "name": "yorkis0207"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1) Normaliza payload (às vezes o n8n guarda como string)\nlet payload = $json;\n\n// Caso 1: veio como string em payload.data (ou em payload.body)\nif (typeof payload.data === \"string\") {\n  payload = JSON.parse(payload.data);\n} else if (payload.body && typeof payload.body === \"string\") {\n  payload = JSON.parse(payload.body);\n} else if (payload.body && typeof payload.body === \"object\") {\n  payload = payload.body;\n}\n\n// 2) Pega lista de ofertas\nconst offers = Array.isArray(payload.data) ? payload.data : [];\nconst carriers = payload.dictionaries?.carriers || {};\n\n// Helpers\nfunction pickSegmentInfo(itinerary) {\n  const segs = itinerary?.segments || [];\n  if (!segs.length) return null;\n\n  const first = segs[0];\n  const last = segs[segs.length - 1];\n\n  return {\n    from: first.departure?.iataCode || null,\n    to: last.arrival?.iataCode || null,\n    departAt: first.departure?.at || null,\n    arriveAt: last.arrival?.at || null,\n    duration: itinerary?.duration || null,\n    stops: Math.max(0, segs.length - 1),\n    segments: segs.map(s => ({\n      from: s.departure?.iataCode || null,\n      to: s.arrival?.iataCode || null,\n      departAt: s.departure?.at || null,\n      arriveAt: s.arrival?.at || null,\n      carrierCode: s.carrierCode || null,\n      number: s.number || null,\n      duration: s.duration || null\n    }))\n  };\n}\n\nfunction airlineNameFromOffer(offer) {\n  const code =\n    (offer.validatingAirlineCodes && offer.validatingAirlineCodes[0]) ||\n    offer.itineraries?.[0]?.segments?.[0]?.carrierCode ||\n    null;\n\n  return {\n    code,\n    name: code ? (carriers[code] || code) : null\n  };\n}\n\n// 3) Simplifica\nconst simplified = offers.slice(0, 5).map((offer) => {\n  const priceTotal = offer.price?.total || null;\n  const currency = offer.price?.currency || null;\n\n  const airline = airlineNameFromOffer(offer);\n\n  const outbound = pickSegmentInfo(offer.itineraries?.[0]);\n  const inbound = pickSegmentInfo(offer.itineraries?.[1]);\n\n  return {\n    airline: airline.name,\n    airlineCode: airline.code,\n    price: { total: priceTotal, currency },\n    outbound,\n    inbound,\n    // opcional: guarda o id da oferta (às vezes útil depois)\n    offerId: offer.id || null\n  };\n});\n\n// 4) Saída pequena e limpa\nreturn [{\n  json: {\n    flightOffers: simplified,\n    meta: {\n      totalOffersReceived: offers.length\n    }\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -640,
+        -80
+      ],
+      "id": "48c9fbb7-ccba-4878-9256-3a1bff3e6a6e",
+      "name": "Simplify Flights"
+    },
+    {
+      "parameters": {
+        "jsCode": "const res = $json;\n\n// dependendo da config do n8n, pode vir em body\nconst payload = res.body && typeof res.body === 'object' ? res.body : res;\n\nconst props = payload.properties || [];\nconst simplified = props.slice(0, 5).map((p) => ({\n  name: p.name || null,\n  address: p.address || null,\n  rating: p.overall_rating ?? p.rating ?? null,\n  reviews: p.reviews ?? null,\n  price_per_night: p.rate_per_night?.lowest ?? p.rate_per_night ?? null,\n  total_rate: p.total_rate ?? null,\n  currency: p.rate_per_night?.currency ?? p.currency ?? \"BRL\",\n  link: p.link || null\n}));\n\nreturn [{ json: { hotelOffers: simplified } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -208,
+        112
+      ],
+      "id": "9b1604c5-a90f-4804-b92a-5a43cb1a0486",
+      "name": "Simplify Hotels"
     },
     {
       "parameters": {
@@ -134,19 +104,19 @@
             },
             {
               "name": "q",
-              "value": "={{ \"hotels in \" + $node[\"AI Agent1\"].json.output.destinationCity }}"
+              "value": "={{ \"hotels in \" + $node[\"Conversão\"].json.output.destinationCity }}"
             },
             {
               "name": "check_in_date",
-              "value": "={{$node[\"AI Agent1\"].json.output.departureDate}}"
+              "value": "={{$node[\"Conversão\"].json.output.departureDate}}"
             },
             {
               "name": "check_out_date",
-              "value": "={{$node[\"AI Agent1\"].json.output.returnDate}}"
+              "value": "={{$node[\"Conversão\"].json.output.returnDate}}"
             },
             {
               "name": "adults",
-              "value": "={{ parseInt($node[\"AI Agent1\"].json.output.adults, 10) }}"
+              "value": "={{ parseInt($node[\"Conversão\"].json.output.adults, 10) }}"
             },
             {
               "name": "currency",
@@ -176,371 +146,174 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        2320,
-        144
+        -416,
+        -80
       ],
-      "id": "3a584436-24a9-4a21-aa89-51bc5fbe1503",
+      "id": "02ae6b31-28b4-463b-8222-2c4312d5d96f",
       "name": "Buscar Hotéis"
     },
     {
       "parameters": {
-        "jsCode": "const res = $json;\n\n// dependendo da config do n8n, pode vir em body\nconst payload = res.body && typeof res.body === 'object' ? res.body : res;\n\nconst props = payload.properties || [];\nconst simplified = props.slice(0, 5).map((p) => ({\n  name: p.name || null,\n  address: p.address || null,\n  rating: p.overall_rating ?? p.rating ?? null,\n  reviews: p.reviews ?? null,\n  price_per_night: p.rate_per_night?.lowest ?? p.rate_per_night ?? null,\n  total_rate: p.total_rate ?? null,\n  currency: p.rate_per_night?.currency ?? p.currency ?? \"BRL\",\n  link: p.link || null\n}));\n\nreturn [{ json: { hotelOffers: simplified } }];\n"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        2544,
-        272
-      ],
-      "id": "e213cf0a-11fc-47e5-b8df-5eff5e381c3f",
-      "name": "Simplify Hotels"
-    },
-    {
-      "parameters": {
-        "jsCode": "// 1) Normaliza payload (às vezes o n8n guarda como string)\nlet payload = $json;\n\n// Caso 1: veio como string em payload.data (ou em payload.body)\nif (typeof payload.data === \"string\") {\n  payload = JSON.parse(payload.data);\n} else if (payload.body && typeof payload.body === \"string\") {\n  payload = JSON.parse(payload.body);\n} else if (payload.body && typeof payload.body === \"object\") {\n  payload = payload.body;\n}\n\n// 2) Pega lista de ofertas\nconst offers = Array.isArray(payload.data) ? payload.data : [];\nconst carriers = payload.dictionaries?.carriers || {};\n\n// Helpers\nfunction pickSegmentInfo(itinerary) {\n  const segs = itinerary?.segments || [];\n  if (!segs.length) return null;\n\n  const first = segs[0];\n  const last = segs[segs.length - 1];\n\n  return {\n    from: first.departure?.iataCode || null,\n    to: last.arrival?.iataCode || null,\n    departAt: first.departure?.at || null,\n    arriveAt: last.arrival?.at || null,\n    duration: itinerary?.duration || null,\n    stops: Math.max(0, segs.length - 1),\n    segments: segs.map(s => ({\n      from: s.departure?.iataCode || null,\n      to: s.arrival?.iataCode || null,\n      departAt: s.departure?.at || null,\n      arriveAt: s.arrival?.at || null,\n      carrierCode: s.carrierCode || null,\n      number: s.number || null,\n      duration: s.duration || null\n    }))\n  };\n}\n\nfunction airlineNameFromOffer(offer) {\n  const code =\n    (offer.validatingAirlineCodes && offer.validatingAirlineCodes[0]) ||\n    offer.itineraries?.[0]?.segments?.[0]?.carrierCode ||\n    null;\n\n  return {\n    code,\n    name: code ? (carriers[code] || code) : null\n  };\n}\n\n// 3) Simplifica\nconst simplified = offers.slice(0, 5).map((offer) => {\n  const priceTotal = offer.price?.total || null;\n  const currency = offer.price?.currency || null;\n\n  const airline = airlineNameFromOffer(offer);\n\n  const outbound = pickSegmentInfo(offer.itineraries?.[0]);\n  const inbound = pickSegmentInfo(offer.itineraries?.[1]);\n\n  return {\n    airline: airline.name,\n    airlineCode: airline.code,\n    price: { total: priceTotal, currency },\n    outbound,\n    inbound,\n    // opcional: guarda o id da oferta (às vezes útil depois)\n    offerId: offer.id || null\n  };\n});\n\n// 4) Saída pequena e limpa\nreturn [{\n  json: {\n    flightOffers: simplified,\n    meta: {\n      totalOffersReceived: offers.length\n    }\n  }\n}];\n"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        2096,
-        144
-      ],
-      "id": "4f588fb6-76c6-4a39-bcdc-23d3b5725a4d",
-      "name": "Simplify Flights"
-    },
-    {
-      "parameters": {
-        "promptType": "define",
-        "text": "=Solicitação do usuário (Atual):\n{{ $('Respond to Chat').isExecuted && $('Respond to Chat').item.json.chatInput ? $('Respond to Chat').item.json.chatInput : $('When chat message received').item.json.chatInput }}\n\nDados de Hotéis (se houver):\n{{ $('Simplify Hotels').isExecuted ? JSON.stringify($('Simplify Hotels').item.json.hotelOffers) : \"Nenhum hotel buscado ainda\" }}\n\nDados de Voos (se houver):\n{{ $('Simplify Flights').isExecuted ? JSON.stringify($('Simplify Flights').item.json.flightOffers) : \"Nenhum voo buscado ainda\" }}\n\nDados de volta (se houver):\n={{ $('When chat message received').item.json.chatInput }}\n\n",
-        "hasOutputParser": true,
-        "options": {
-          "systemMessage": "Você é um Agente LLM **Baseado em Objetivos (Goal-Based)**.\nVocê mantém memória, acompanha progresso e escolhe ações para alcançar o objetivo do usuário.\n\nOBJETIVO PRINCIPAL:\n- Ajudar o usuário a planejar uma viagem: coletar dados mínimos, buscar voos e hotéis, e entregar uma recomendação final clara e útil.\n\nSUBOBJETIVOS (em ordem):\n1) Entender intenção do usuário (viagem) e extrair parâmetros.\n2) Garantir campos obrigatórios.\n3) Se tiver campos suficientes, acionar busca (voos/hotéis).\n4) Quando resultados existirem, montar resposta final rica e amigável.\n\nCAMPOS:\n- Obrigatórios: originCity, destinationCity, departureDate\n- Opcionais com defaults: returnDate (se ausente, assumir +7 dias da ida), adults=1, children=0, year=2026\n- IATA: sempre tente inferir IATA de 3 letras (se não tiver certeza, use a melhor inferência provável e mantenha consistência).\n- Se faltar cidade de origem, usar Recife.\n\nVERIFICAÇÃO DE PROGRESSO (Goal tracking):\n- Se houver flightOffers OU hotelOffers já presentes (via memória/entrada), considere que a busca já aconteceu e finalize.\n- Se faltar qualquer obrigatório, pergunte somente o necessário.\n- Se tiver obrigatórios, prossiga com SEARCH.\n\nAÇÕES DISPONÍVEIS (decision):\n- ASK_USER: quando faltar obrigatório.\n- SEARCH: quando já tem obrigatórios e ainda não tem resultados.\n- COMPLETE: quando já tem resultados (voos/hotéis) e deve responder final.\n\nFORMATO DE SAÍDA OBRIGATÓRIO (JSON): Responda APENAS o JSON abaixo, sem blocos de código ou explicações.\n{ \"decision\": \"SEARCH\" | \"ASK_USER\" | \"COMPLETE\", \"missing_info\": [], \"user_message\": \"Sua mensagem aqui\", \"search_params\": { \"originCity\": \"string\", \"originCityIATA\": \"string\", \"destinationCity\": \"string\", \"destinationCityIATA\": \"string\", \"departureDate\": \"YYYY-MM-DD\", \"returnDate\": \"YYYY-MM-DD\", \"adults\": \"number\", \"children\": \"number\" } }\n\nRegras para o user_message:\n- Seja educado e proporcione uma ótima experiência.\n- Na resposta final (COMPLETE), sempre fale pelo menos 3 pontos turísticos e o porquê recomenda cada um.\n- Fale pontos bons da cidade/país que o usuário quer conhecer.\n\nResponda APENAS com JSON válido. NÃO use blocos de código."
-        }
-      },
-      "type": "@n8n/n8n-nodes-langchain.agent",
-      "typeVersion": 3.1,
-      "position": [
-        672,
-        -224
-      ],
-      "id": "6e6b858a-fe35-44fe-8340-d5a96f0aa539",
-      "name": "AI Agent"
-    },
-    {
-      "parameters": {
-        "jsonSchemaExample": "{\n  \"decision\": \"string\",\n  \"missing_info\": [\"string\"],\n  \"user_message\": \"string\",\n  \"search_params\": {\n    \"originCity\": \"string\",\n    \"originCityIATA\": \"string\",\n    \"destinationCity\": \"string\",\n    \"destinationCityIATA\": \"string\",\n    \"departureDate\": \"string\",\n    \"returnDate\": \"string\",\n    \"adults\": \"number\",\n    \"children\": \"number\"\n  }\n}"
-      },
-      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
-      "typeVersion": 1.3,
-      "position": [
-        864,
-        64
-      ],
-      "id": "6719cb6a-9978-40b9-bac5-d9d9da0c788f",
-      "name": "Structured Output Parser1"
-    },
-    {
-      "parameters": {},
-      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
-      "typeVersion": 1.3,
-      "position": [
-        736,
-        64
-      ],
-      "id": "f5733c83-7ca2-4439-b7a3-548aaccf31ad",
-      "name": "Simple Memory1"
-    },
-    {
-      "parameters": {
-        "options": {
-          "responseMode": "responseNodes"
-        }
-      },
-      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
-      "typeVersion": 1.4,
-      "position": [
-        160,
-        64
-      ],
-      "id": "16f88116-f5ba-4bd1-8f40-52565cfdc240",
-      "name": "When chat message received",
-      "webhookId": "c686848c-b36e-4c28-abea-074f4f05a592"
-    },
-    {
-      "parameters": {
-        "rules": {
-          "values": [
+        "url": "https://test.api.amadeus.com/v2/shopping/flight-offers",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
             {
-              "conditions": {
-                "options": {
-                  "caseSensitive": true,
-                  "leftValue": "",
-                  "typeValidation": "strict",
-                  "version": 3
-                },
-                "conditions": [
-                  {
-                    "leftValue": "={{ $json.output.decision }}",
-                    "rightValue": "=SEARCH",
-                    "operator": {
-                      "type": "string",
-                      "operation": "notEquals"
-                    },
-                    "id": "d394fcb2-a04a-4a7c-97e1-e629b65b1286"
-                  }
-                ],
-                "combinator": "and"
-              }
+              "name": "originLocationCode",
+              "value": "={{$node[\"Conversão\"].json.output.originCityIATA}}"
             },
             {
-              "conditions": {
-                "options": {
-                  "caseSensitive": true,
-                  "leftValue": "",
-                  "typeValidation": "strict",
-                  "version": 3
-                },
-                "conditions": [
-                  {
-                    "id": "2c118af7-6edf-491d-a211-995f64afbc74",
-                    "leftValue": "={{ $json.output.decision }}",
-                    "rightValue": "SEARCH",
-                    "operator": {
-                      "type": "string",
-                      "operation": "equals"
-                    }
-                  }
-                ],
-                "combinator": "and"
-              }
+              "name": "destinationLocationCode",
+              "value": "={{$node[\"Conversão\"].json.output.destinationCityIATA}}"
+            },
+            {
+              "name": "departureDate",
+              "value": "={{$node[\"Conversão\"].json.output.departureDate}}"
+            },
+            {
+              "name": "returnDate",
+              "value": "={{$node[\"Conversão\"].json.output.returnDate}}"
+            },
+            {
+              "name": "adults",
+              "value": "={{$node[\"Conversão\"].json.output.adults}}"
+            },
+            {
+              "name": "currencyCode",
+              "value": "BRL"
+            },
+            {
+              "name": "max",
+              "value": "5"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$node[\"Amadeus OAuth Token\"].json[\"access_token\"]}}"
             }
           ]
         },
         "options": {}
       },
-      "type": "n8n-nodes-base.switch",
-      "typeVersion": 3.4,
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
       "position": [
-        1072,
-        -160
-      ],
-      "id": "329fa2c3-900d-46d9-ae2a-849d7f2ee9dc",
-      "name": "Switch"
-    },
-    {
-      "parameters": {
-        "message": "={{ $json.output.user_message }}",
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.chat",
-      "typeVersion": 1,
-      "position": [
-        1376,
-        -176
-      ],
-      "id": "6316f0ed-373c-4e59-86d3-1f63f74883dc",
-      "name": "Respond to Chat"
-    },
-    {
-      "parameters": {
-        "modelName": "models/gemini-flash-latest",
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
-      "typeVersion": 1,
-      "position": [
-        656,
-        16
-      ],
-      "id": "2fcd512d-d916-4c3f-b4a9-d06d16d91a59",
-      "name": "Google Gemini Chat Model",
-      "credentials": {
-        "googlePalmApi": {
-          "id": "KIpRZQBFu1mZxJxb",
-          "name": "yorkis0207"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "modelName": "models/gemini-flash-latest",
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
-      "typeVersion": 1,
-      "position": [
-        1312,
-        368
-      ],
-      "id": "189c74ee-f2fa-47b8-affb-bed94e00edcc",
-      "name": "Google Gemini Chat Model1",
-      "credentials": {
-        "googlePalmApi": {
-          "id": "KIpRZQBFu1mZxJxb",
-          "name": "yorkis0207"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "message": "=✈️ Entendi! Vou buscar voos agora… \nRota: {{$node[\"AI Agent\"].json.output.search_params.originCity}} ({{$node[\"AI Agent\"].json.output.search_params.originCityIATA}}) → {{$node[\"AI Agent\"].json.output.search_params.destinationCity}} ({{$node[\"AI Agent\"].json.output.search_params.destinationCityIATA}})\nDatas: {{$node[\"AI Agent\"].json.output.search_params.departureDate}} a {{$node[\"AI Agent\"].json.output.search_params.returnDate}}\nPassageiros: {{$node[\"AI Agent\"].json.output.search_params.adults}} adulto(s) e {{$node[\"AI Agent\"].json.output.search_params.children}} criança(s) 🙂\n",
-        "waitUserReply": false,
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.chat",
-      "typeVersion": 1,
-      "position": [
-        2016,
-        -80
-      ],
-      "id": "dd057e48-cbe1-4677-88d3-ffcc27d3ccf4",
-      "name": "Respond to Chat1"
-    },
-    {
-      "parameters": {
-        "message": "=✅ Achei opções de voos! Agora vou buscar hotéis em {{$node[\"AI Agent\"].json.output.search_params.destinationCity}} e já já te trago as melhores opções 🏨\n",
-        "waitUserReply": false,
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.chat",
-      "typeVersion": 1,
-      "position": [
-        2528,
+        -1120,
         -96
       ],
-      "id": "b1f1bd42-06ce-4bb3-9104-7342d4275654",
-      "name": "Respond to Chat2"
+      "id": "408aa24c-4f99-4af9-9c01-c62aad8bccf3",
+      "name": "Buscar VOOS1"
     },
     {
       "parameters": {
-        "message": "🧠 Perfeito! Já tenho voos e hotéis. Agora vou montar a melhor recomendação com dicas e roteiro rapidinho ✅",
-        "waitUserReply": false,
+        "toolDescription": "Use esta ferramenta para buscar opções de hospedagem, hotéis e aluguéis de temporada diretamente no Google Hotels. É ideal para obter preços, avaliações e disponibilidade em tempo real. Inputs obrigatórios: Localização ou nome do hotel (parâmetro 'q'), data de check-in, data de check-out e número de adultos envolvidos nessa viajem. Use sempre que o plano de viagem exigir uma estadia.",
+        "url": "https://serpapi.com/search.json",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "engine",
+              "value": "google_hotels"
+            },
+            {
+              "name": "q",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters1_Value', ``, 'string') }}"
+            },
+            {
+              "name": "check_in_date",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters2_Value', ``, 'string') }}"
+            },
+            {
+              "name": "check_out_date",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters3_Value', ``, 'string') }}"
+            },
+            {
+              "name": "adults",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters4_Value', ``, 'string') }}"
+            },
+            {
+              "name": "currency",
+              "value": "BRL"
+            },
+            {
+              "name": "api_key",
+              "value": "=7020fdeced29cf0c4a8ca7f140ec4870219905a1119668c05308ba1687e74fdb"
+            }
+          ]
+        },
         "options": {}
       },
-      "type": "@n8n/n8n-nodes-langchain.chat",
-      "typeVersion": 1,
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
       "position": [
-        1648,
-        -96
+        -1712,
+        320
       ],
-      "id": "76fa2c45-c5f8-4140-887b-23effb97b9b7",
-      "name": "Respond to Chat3"
+      "id": "42f082f7-707e-42eb-b764-c8a6310a6189",
+      "name": "Google Hotels_search"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Use esta ferramenta para buscar opções de voos diretamente no Google Flights.\nÉ ideal para obter preços, companhias aéreas, duração, escalas e disponibilidade em tempo quase real.\nInputs obrigatórios: aeroporto ou cidade de origem (departure_id), aeroporto ou cidade de destino (arrival_id) e data de ida (outbound_date).\nInputs opcionais: número de adultos e crianças.\nRegras: utilizar sempre viagens apenas de ida (type=2) e nunca informar data de retorno.\nUse esta ferramenta sempre que o plano de viagem exigir deslocamento aéreo entre cidades.",
+        "url": "https://serpapi.com/search.json",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "engine",
+              "value": "google_hotels"
+            },
+            {
+              "name": "q",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters1_Value', ``, 'string') }}"
+            },
+            {
+              "name": "api_key",
+              "value": "=7020fdeced29cf0c4a8ca7f140ec4870219905a1119668c05308ba1687e74fdb"
+            },
+            {
+              "name": "currency",
+              "value": "BRL"
+            },
+            {
+              "name": "check_in_date",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters4_Value', `should be in the format of YYYY-MM-DD. E.g. 2023-01-31.`, 'string') }}"
+            },
+            {
+              "name": "departure_id",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters5_Value', `IATA MODEL`, 'string') }}"
+            },
+            {
+              "name": "arrival_id",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters6_Value', ``, 'string') }}"
+            },
+            {
+              "name": "check_out_date",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters7_Value', `should be in the format of YYYY-MM-DD. E.g. 2023-01-31.`, 'string') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        -1584,
+        320
+      ],
+      "id": "e38fd80c-850d-420e-a563-34c6db94e84a",
+      "name": "Google Flights_search"
     }
   ],
   "pinData": {},
   "connections": {
-    "AI Agent1": {
-      "main": [
-        [
-          {
-            "node": "Amadeus OAuth Token",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Respond to Chat3",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Amadeus OAuth Token": {
-      "main": [
-        [
-          {
-            "node": "Buscar VOOS1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Structured Output Parser": {
-      "ai_outputParser": [
-        [
-          {
-            "node": "AI Agent1",
-            "type": "ai_outputParser",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Buscar VOOS1": {
-      "main": [
-        [
-          {
-            "node": "Simplify Flights",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Respond to Chat1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Buscar Hotéis": {
-      "main": [
-        [
-          {
-            "node": "Simplify Hotels",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Respond to Chat2",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Simplify Hotels": {
-      "main": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Simplify Flights": {
-      "main": [
-        [
-          {
-            "node": "Buscar Hotéis",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "AI Agent": {
       "main": [
-        [
-          {
-            "node": "Switch",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Structured Output Parser1": {
-      "ai_outputParser": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "ai_outputParser",
-            "index": 0
-          }
-        ]
+        []
       ]
     },
     "Simple Memory1": {
@@ -565,24 +338,6 @@
         ]
       ]
     },
-    "Switch": {
-      "main": [
-        [
-          {
-            "node": "Respond to Chat",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "AI Agent1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Google Gemini Chat Model": {
       "ai_languageModel": [
         [
@@ -594,40 +349,29 @@
         ]
       ]
     },
-    "Google Gemini Chat Model1": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "AI Agent1",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Respond to Chat": {
+    "Simplify Flights": {
       "main": [
         [
           {
-            "node": "AI Agent",
+            "node": "Buscar Hotéis",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Respond to Chat3": {
+    "Buscar Hotéis": {
       "main": [
         [
           {
-            "node": "Amadeus OAuth Token",
+            "node": "Simplify Hotels",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Respond to Chat1": {
+    "Buscar VOOS1": {
       "main": [
         [
           {
@@ -638,12 +382,23 @@
         ]
       ]
     },
-    "Respond to Chat2": {
-      "main": [
+    "Google Hotels_search": {
+      "ai_tool": [
         [
           {
-            "node": "Simplify Hotels",
-            "type": "main",
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Flights_search": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
             "index": 0
           }
         ]
@@ -655,7 +410,7 @@
     "executionOrder": "v1",
     "availableInMCP": false
   },
-  "versionId": "efcbf574-fc41-4bef-b0bb-bd0800efb953",
+  "versionId": "d6c7ead7-59ee-425b-a0bc-457099199656",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "22ea323b6c85fbb2de3a8dedaefae6ec8edb82e9c1e169fef139445834eee221"
