@@ -5,17 +5,17 @@
       "parameters": {
         "hasOutputParser": true,
         "options": {
-          "systemMessage": "Você é um Agente LLM **Baseado em Objetivos (Goal-Based)**.\nVocê mantém memória, acompanha progresso e escolhe ações para alcançar o objetivo do usuário.\n\nOBJETIVO PRINCIPAL:\n-  Ajudar o usuário a planejar uma viagem de acordo com as especificações redigidas pelo mesmo.\n\nSUBOBJETIVOS (em ordem):\n1) Entender intenção do usuário (viagem) e extrair parâmetros.\n2) Se o usuário fizer a requisição, acionar busca de APIs (voos/hotéis).\n3) Ter critério de parada especificado pelo usuário.\n4) Gerar os estados intermediários.\n5) Quando resultados existirem, montar resposta final rica e amigável.\n\nVERIFICAÇÃO DE PROGRESSO (Goal tracking):\n- Crie um plano de ação e define ele em passos.\n- A cada passo, avalie o seu progresso e defina a distancia semântica entre o estado atual e o estado desejado.\n",
+          "systemMessage": "Persona: Você é um Agente Planner de Viagens. Você não segue um roteiro fixo; você avalia o que tem e decide o próximo passo para alcançar o objetivo.\n\nSuas Ferramentas: Você possui ferramentas para: flight_search (voos), Google Hotels_search (hotéis) e tripadvisor_search (atrações).\n\nObjetivo: Transformar o Sstart​ (estado inicial vazio ou parcial) em Sgoal​ (viagem completa: voos + hotel + atrações).\n\nLógica de Decisão:\n\n    Analise a Memória: Veja o que já foi extraído ou buscado. Atualize o current_state.\n\n    Identifique Lacunas: > - Se falta Destino ou Data: Defina user_message com uma pergunta ao usuário.\n\n        Se tem os dados mas não buscou nas APIs: Use a ferramenta adequada. Informe no thought_process.\n\n    Critério de Parada (Distance=0): Quando tiver todos os dados consolidados (voos, hotéis e atrações), escreva o roteiro final detalhado no campo user_message e defina distance_to_goal como 0.\n\nInstruções de Saída:\n\n    Se precisar de mais informações do usuário, user_message deve ser a pergunta.\n\n    Se estiver apenas processando internamente (chamando tools), user_message pode ser algo como \"Estou pesquisando as melhores opções para você...\".\n\n    Responda APENAS com JSON.",
           "returnIntermediateSteps": true
         }
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
       "position": [
-        -1760,
-        48
+        -864,
+        352
       ],
-      "id": "a642e397-1f45-475b-891a-5c90977ec392",
+      "id": "8436af14-cbf6-42c7-a968-827f5a70a427",
       "name": "AI Agent"
     },
     {
@@ -23,10 +23,10 @@
       "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
       "typeVersion": 1.3,
       "position": [
-        -1840,
-        336
+        -992,
+        576
       ],
-      "id": "2b881d6c-fa60-408b-8b0f-2ee0ab31bdd5",
+      "id": "70e351af-a8dd-4512-8439-6c485d4d3157",
       "name": "Simple Memory1"
     },
     {
@@ -38,10 +38,10 @@
       "type": "@n8n/n8n-nodes-langchain.chatTrigger",
       "typeVersion": 1.4,
       "position": [
-        -2496,
-        64
+        -1344,
+        352
       ],
-      "id": "5db96a59-c95e-4a7f-b388-0330b757ac03",
+      "id": "9ccfe831-6f96-4d4a-9f63-e46229b5960f",
       "name": "When chat message received",
       "webhookId": "c686848c-b36e-4c28-abea-074f4f05a592",
       "alwaysOutputData": true
@@ -54,159 +54,17 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
       "typeVersion": 1,
       "position": [
-        -2048,
-        352
+        -1120,
+        576
       ],
-      "id": "0f45140b-d52c-47d8-a092-2c7f2cd23a95",
+      "id": "c6509bd6-37eb-43d7-834c-4df128f0df1f",
       "name": "Google Gemini Chat Model",
       "credentials": {
         "googlePalmApi": {
-          "id": "KIpRZQBFu1mZxJxb",
-          "name": "yorkis0207"
+          "id": "wRm9vNM1G2DgJQgv",
+          "name": "Google Gemini(PaLM) www.raylandsoncs"
         }
       }
-    },
-    {
-      "parameters": {
-        "jsCode": "// 1) Normaliza payload (às vezes o n8n guarda como string)\nlet payload = $json;\n\n// Caso 1: veio como string em payload.data (ou em payload.body)\nif (typeof payload.data === \"string\") {\n  payload = JSON.parse(payload.data);\n} else if (payload.body && typeof payload.body === \"string\") {\n  payload = JSON.parse(payload.body);\n} else if (payload.body && typeof payload.body === \"object\") {\n  payload = payload.body;\n}\n\n// 2) Pega lista de ofertas\nconst offers = Array.isArray(payload.data) ? payload.data : [];\nconst carriers = payload.dictionaries?.carriers || {};\n\n// Helpers\nfunction pickSegmentInfo(itinerary) {\n  const segs = itinerary?.segments || [];\n  if (!segs.length) return null;\n\n  const first = segs[0];\n  const last = segs[segs.length - 1];\n\n  return {\n    from: first.departure?.iataCode || null,\n    to: last.arrival?.iataCode || null,\n    departAt: first.departure?.at || null,\n    arriveAt: last.arrival?.at || null,\n    duration: itinerary?.duration || null,\n    stops: Math.max(0, segs.length - 1),\n    segments: segs.map(s => ({\n      from: s.departure?.iataCode || null,\n      to: s.arrival?.iataCode || null,\n      departAt: s.departure?.at || null,\n      arriveAt: s.arrival?.at || null,\n      carrierCode: s.carrierCode || null,\n      number: s.number || null,\n      duration: s.duration || null\n    }))\n  };\n}\n\nfunction airlineNameFromOffer(offer) {\n  const code =\n    (offer.validatingAirlineCodes && offer.validatingAirlineCodes[0]) ||\n    offer.itineraries?.[0]?.segments?.[0]?.carrierCode ||\n    null;\n\n  return {\n    code,\n    name: code ? (carriers[code] || code) : null\n  };\n}\n\n// 3) Simplifica\nconst simplified = offers.slice(0, 5).map((offer) => {\n  const priceTotal = offer.price?.total || null;\n  const currency = offer.price?.currency || null;\n\n  const airline = airlineNameFromOffer(offer);\n\n  const outbound = pickSegmentInfo(offer.itineraries?.[0]);\n  const inbound = pickSegmentInfo(offer.itineraries?.[1]);\n\n  return {\n    airline: airline.name,\n    airlineCode: airline.code,\n    price: { total: priceTotal, currency },\n    outbound,\n    inbound,\n    // opcional: guarda o id da oferta (às vezes útil depois)\n    offerId: offer.id || null\n  };\n});\n\n// 4) Saída pequena e limpa\nreturn [{\n  json: {\n    flightOffers: simplified,\n    meta: {\n      totalOffersReceived: offers.length\n    }\n  }\n}];\n"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        -640,
-        -80
-      ],
-      "id": "48c9fbb7-ccba-4878-9256-3a1bff3e6a6e",
-      "name": "Simplify Flights"
-    },
-    {
-      "parameters": {
-        "jsCode": "const res = $json;\n\n// dependendo da config do n8n, pode vir em body\nconst payload = res.body && typeof res.body === 'object' ? res.body : res;\n\nconst props = payload.properties || [];\nconst simplified = props.slice(0, 5).map((p) => ({\n  name: p.name || null,\n  address: p.address || null,\n  rating: p.overall_rating ?? p.rating ?? null,\n  reviews: p.reviews ?? null,\n  price_per_night: p.rate_per_night?.lowest ?? p.rate_per_night ?? null,\n  total_rate: p.total_rate ?? null,\n  currency: p.rate_per_night?.currency ?? p.currency ?? \"BRL\",\n  link: p.link || null\n}));\n\nreturn [{ json: { hotelOffers: simplified } }];\n"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        -208,
-        112
-      ],
-      "id": "9b1604c5-a90f-4804-b92a-5a43cb1a0486",
-      "name": "Simplify Hotels"
-    },
-    {
-      "parameters": {
-        "url": "https://serpapi.com/search.json",
-        "sendQuery": true,
-        "queryParameters": {
-          "parameters": [
-            {
-              "name": "engine",
-              "value": "google_hotels"
-            },
-            {
-              "name": "q",
-              "value": "={{ \"hotels in \" + $node[\"Conversão\"].json.output.destinationCity }}"
-            },
-            {
-              "name": "check_in_date",
-              "value": "={{$node[\"Conversão\"].json.output.departureDate}}"
-            },
-            {
-              "name": "check_out_date",
-              "value": "={{$node[\"Conversão\"].json.output.returnDate}}"
-            },
-            {
-              "name": "adults",
-              "value": "={{ parseInt($node[\"Conversão\"].json.output.adults, 10) }}"
-            },
-            {
-              "name": "currency",
-              "value": "BRL"
-            },
-            {
-              "name": "sort_by",
-              "value": "3"
-            },
-            {
-              "name": "api_key",
-              "value": "713d53c97101db5efe89c07168ebc9aea138a55ca118ab21ea71fccff0077036"
-            }
-          ]
-        },
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "Authorization",
-              "value": "=Bearer {{$node[\"Amadeus OAuth Token\"].json.access_token}}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        -416,
-        -80
-      ],
-      "id": "02ae6b31-28b4-463b-8222-2c4312d5d96f",
-      "name": "Buscar Hotéis"
-    },
-    {
-      "parameters": {
-        "url": "https://test.api.amadeus.com/v2/shopping/flight-offers",
-        "sendQuery": true,
-        "queryParameters": {
-          "parameters": [
-            {
-              "name": "originLocationCode",
-              "value": "={{$node[\"Conversão\"].json.output.originCityIATA}}"
-            },
-            {
-              "name": "destinationLocationCode",
-              "value": "={{$node[\"Conversão\"].json.output.destinationCityIATA}}"
-            },
-            {
-              "name": "departureDate",
-              "value": "={{$node[\"Conversão\"].json.output.departureDate}}"
-            },
-            {
-              "name": "returnDate",
-              "value": "={{$node[\"Conversão\"].json.output.returnDate}}"
-            },
-            {
-              "name": "adults",
-              "value": "={{$node[\"Conversão\"].json.output.adults}}"
-            },
-            {
-              "name": "currencyCode",
-              "value": "BRL"
-            },
-            {
-              "name": "max",
-              "value": "5"
-            }
-          ]
-        },
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "Authorization",
-              "value": "=Bearer {{$node[\"Amadeus OAuth Token\"].json[\"access_token\"]}}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        -1120,
-        -96
-      ],
-      "id": "408aa24c-4f99-4af9-9c01-c62aad8bccf3",
-      "name": "Buscar VOOS1"
     },
     {
       "parameters": {
@@ -221,19 +79,19 @@
             },
             {
               "name": "q",
-              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters1_Value', ``, 'string') }}"
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters1_Value', `Required\nParameter defines the search query. You can use anything that you would use in a regular Google Hotels search.`, 'string') }}"
             },
             {
               "name": "check_in_date",
-              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters2_Value', ``, 'string') }}"
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters2_Value', `Required\nParameter defines the check-in date. The format is YYYY-MM-DD. e.g. 2026-01-23`, 'string') }}"
             },
             {
               "name": "check_out_date",
-              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters3_Value', ``, 'string') }}"
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters3_Value', `Required\nParameter defines the check-out date. The format is YYYY-MM-DD. e.g. 2026-01-24`, 'string') }}"
             },
             {
               "name": "adults",
-              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters4_Value', ``, 'string') }}"
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters4_Value', `Optional\nParameter defines the number of adults. Default to 2.`, 'string') }}"
             },
             {
               "name": "currency",
@@ -250,10 +108,10 @@
       "type": "n8n-nodes-base.httpRequestTool",
       "typeVersion": 4.3,
       "position": [
-        -1712,
-        320
+        -864,
+        576
       ],
-      "id": "42f082f7-707e-42eb-b764-c8a6310a6189",
+      "id": "b0960576-c29d-4e6e-bf54-a842958c2e27",
       "name": "Google Hotels_search"
     },
     {
@@ -302,20 +160,74 @@
       "type": "n8n-nodes-base.httpRequestTool",
       "typeVersion": 4.3,
       "position": [
-        -1584,
-        320
+        -736,
+        576
       ],
-      "id": "e38fd80c-850d-420e-a563-34c6db94e84a",
+      "id": "ede03f58-cbae-4280-a57c-23a1d6c9158b",
       "name": "Google Flights_search"
+    },
+    {
+      "parameters": {
+        "message": "={{ $json.output.user_message }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chat",
+      "typeVersion": 1,
+      "position": [
+        -272,
+        352
+      ],
+      "id": "cebfdfc7-9fc3-4545-a44b-fef09a007be4",
+      "name": "Respond to Chat"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Use esta ferramenta para pesquisar atrações turísticas, pontos de interesse, restaurantes e ler avaliações detalhadas de viajantes no Tripadvisor. É a ferramenta principal para planejar roteiros, descobrir 'o que fazer' em um destino e verificar a popularidade de locais. Input principal: O nome da cidade ou ponto turístico no parâmetro 'q'. Use sempre que o usuário pedir recomendações de lazer ou quiser saber a opinião de outros viajantes.",
+        "url": "https://serpapi.com/search.json",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', `Required\nO termo de busca para o Tripadvisor. Deve conter obrigatoriamente o nome da cidade, um ponto turístico específico ou o nome de uma atração. Exemplos: 'Paris', 'Cristo Redentor', 'Museu do Louvre'. Não inclua datas ou número de pessoas neste campo.`, 'string') }}"
+            },
+            {
+              "name": "api_key",
+              "value": "=7020fdeced29cf0c4a8ca7f140ec4870219905a1119668c05308ba1687e74fdb"
+            },
+            {
+              "name": "ssrc",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters2_Value', `Optional\nThis parameter specifies the search filter you want to use for the Tripadvisor search.\nAvailable options:\na - All Results\nr - Restaurants\nA - Things to Do\nh - Hotels\ng - Destinations\nv - Vacation Rentals\nf - Forums\n\nNOTE: Tripadvisor has discontinued support for Vacation Rentals. As a result, using ssrc=v may return incomplete results or no results at all.`, 'string') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        -608,
+        576
+      ],
+      "id": "b0b99e77-08dd-4382-b460-cec91b624f5e",
+      "name": "Google Tripadvisor_search"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"thought_process\": \"O que já fiz e o que farei agora\",\n  \"current_state\": \"Descrição textual do progresso\",\n  \"goal\": \"Descrição do objetivo final\",\n  \"distance_to_goal\": 0.5,\n  \"user_message\": \"Mensagem direta para o usuário (pergunta ou resposta)\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -480,
+        576
+      ],
+      "id": "c4985212-d537-4953-b99a-e7bdb9b5ee82",
+      "name": "Structured Output Parser"
     }
   ],
   "pinData": {},
   "connections": {
-    "AI Agent": {
-      "main": [
-        []
-      ]
-    },
     "Simple Memory1": {
       "ai_memory": [
         [
@@ -349,39 +261,6 @@
         ]
       ]
     },
-    "Simplify Flights": {
-      "main": [
-        [
-          {
-            "node": "Buscar Hotéis",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Buscar Hotéis": {
-      "main": [
-        [
-          {
-            "node": "Simplify Hotels",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Buscar VOOS1": {
-      "main": [
-        [
-          {
-            "node": "Simplify Flights",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Google Hotels_search": {
       "ai_tool": [
         [
@@ -403,6 +282,50 @@
           }
         ]
       ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Chat": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Tripadvisor_search": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
@@ -410,11 +333,11 @@
     "executionOrder": "v1",
     "availableInMCP": false
   },
-  "versionId": "d6c7ead7-59ee-425b-a0bc-457099199656",
+  "versionId": "48106a80-86b0-40ef-a05a-185e10d80530",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "22ea323b6c85fbb2de3a8dedaefae6ec8edb82e9c1e169fef139445834eee221"
+    "instanceId": "edc4a4812a5e5b087f04d30477d7da717fc4ce831ba8a367e362999b444580ee"
   },
-  "id": "WtQ6k3d9ugrlXq5viEu9G",
+  "id": "f5etlM8DPiUj8DaxKKyEV",
   "tags": []
 }
