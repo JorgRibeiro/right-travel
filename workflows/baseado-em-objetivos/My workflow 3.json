@@ -5,17 +5,17 @@
       "parameters": {
         "hasOutputParser": true,
         "options": {
-          "systemMessage": "Persona: Você é um Agente Planner de Viagens. Você não segue um roteiro fixo; você avalia o que tem e decide o próximo passo para alcançar o objetivo.\n\nSuas Ferramentas: Você possui ferramentas para: flight_search (voos), Google Hotels_search (hotéis) e tripadvisor_search (atrações).\n\nObjetivo: Transformar o Sstart​ (estado inicial vazio ou parcial) em Sgoal​ (viagem completa: voos + hotel + atrações).\n\nLógica de Decisão:\n\n    Analise a Memória: Veja o que já foi extraído ou buscado. Atualize o current_state.\n\n    Identifique Lacunas: > - Se falta Destino ou Data: Defina user_message com uma pergunta ao usuário.\n\n        Se tem os dados mas não buscou nas APIs: Use a ferramenta adequada. Informe no thought_process.\n\n    Critério de Parada (Distance=0): Quando tiver todos os dados consolidados (voos, hotéis e atrações), escreva o roteiro final detalhado no campo user_message e defina distance_to_goal como 0.\n\nInstruções de Saída:\n\n    Se precisar de mais informações do usuário, user_message deve ser a pergunta.\n\n    Se estiver apenas processando internamente (chamando tools), user_message pode ser algo como \"Estou pesquisando as melhores opções para você...\".\n\n    Responda APENAS com JSON.",
+          "systemMessage": "Persona: Você é um Agente Planner de Viagens. Você não segue um roteiro fixo; você avalia o que tem e decide o próximo passo para alcançar o objetivo.\n\nSuas Ferramentas: Você possui ferramentas para: flight_search (voos), Google Hotels_search (hotéis) e tripadvisor_search (atrações).\n\nObjetivo: Transformar o Sstart​ (estado inicial vazio ou parcial) em Sgoal​ (viagem completa: voos + hotel + atrações).\n\nRegras: Para chamadas de API que usam datas, apenas faça a requisição quando o usuário expor a data, e todas no formato YYYY/MM/DD.\n\nLógica de Decisão:\n\n    Analise a Memória: Veja o que já foi extraído ou buscado. Atualize o current_state.\n\n    Identifique Lacunas: > - Se falta Destino ou Data: Defina user_message com uma pergunta ao usuário.\n\n        Se tem os dados mas não buscou nas APIs: Use a ferramenta adequada. Informe no thought_process.\n\n    Critério de Parada (Distance=0): Quando tiver todos os dados consolidados (voos, hotéis e atrações), escreva o roteiro final detalhado no campo user_message e defina distance_to_goal como 0.\n\nInstruções de Saída:\n\n    Se precisar de mais informações do usuário, user_message deve ser a pergunta.\n\n    Se estiver apenas processando internamente (chamando tools), user_message pode ser algo como \"Estou pesquisando as melhores opções para você...\".\n\n    Responda APENAS com JSON.",
           "returnIntermediateSteps": true
         }
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
       "position": [
-        -864,
-        352
+        1616,
+        192
       ],
-      "id": "8436af14-cbf6-42c7-a968-827f5a70a427",
+      "id": "aa1033ec-7966-4e3f-bf23-10a744c9e13b",
       "name": "AI Agent"
     },
     {
@@ -23,10 +23,10 @@
       "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
       "typeVersion": 1.3,
       "position": [
-        -992,
-        576
+        1488,
+        416
       ],
-      "id": "70e351af-a8dd-4512-8439-6c485d4d3157",
+      "id": "468594d1-4acc-44b2-ad51-111c4ea505ae",
       "name": "Simple Memory1"
     },
     {
@@ -38,33 +38,13 @@
       "type": "@n8n/n8n-nodes-langchain.chatTrigger",
       "typeVersion": 1.4,
       "position": [
-        -1344,
-        352
+        1136,
+        192
       ],
-      "id": "9ccfe831-6f96-4d4a-9f63-e46229b5960f",
+      "id": "c01d1b44-2a6f-4f80-ab3e-cbf33179392f",
       "name": "When chat message received",
       "webhookId": "c686848c-b36e-4c28-abea-074f4f05a592",
       "alwaysOutputData": true
-    },
-    {
-      "parameters": {
-        "modelName": "models/gemini-flash-latest",
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
-      "typeVersion": 1,
-      "position": [
-        -1120,
-        576
-      ],
-      "id": "c6509bd6-37eb-43d7-834c-4df128f0df1f",
-      "name": "Google Gemini Chat Model",
-      "credentials": {
-        "googlePalmApi": {
-          "id": "wRm9vNM1G2DgJQgv",
-          "name": "Google Gemini(PaLM) www.raylandsoncs"
-        }
-      }
     },
     {
       "parameters": {
@@ -108,15 +88,15 @@
       "type": "n8n-nodes-base.httpRequestTool",
       "typeVersion": 4.3,
       "position": [
-        -864,
-        576
+        1616,
+        416
       ],
-      "id": "b0960576-c29d-4e6e-bf54-a842958c2e27",
+      "id": "39aa571a-8626-460f-ba28-fddc8aacae78",
       "name": "Google Hotels_search"
     },
     {
       "parameters": {
-        "toolDescription": "Use esta ferramenta para buscar opções de voos diretamente no Google Flights.\nÉ ideal para obter preços, companhias aéreas, duração, escalas e disponibilidade em tempo quase real.\nInputs obrigatórios: aeroporto ou cidade de origem (departure_id), aeroporto ou cidade de destino (arrival_id) e data de ida (outbound_date).\nInputs opcionais: número de adultos e crianças.\nRegras: utilizar sempre viagens apenas de ida (type=2) e nunca informar data de retorno.\nUse esta ferramenta sempre que o plano de viagem exigir deslocamento aéreo entre cidades.",
+        "toolDescription": "Use esta ferramenta para buscar opções de voos diretamente no Google Flights.\nÉ ideal para obter preços, companhias aéreas, duração, escalas e disponibilidade em tempo quase real.\nInputs obrigatórios: aeroporto ou cidade de origem (departure_id), aeroporto ou cidade de destino (arrival_id), data de ida (check_in_date) e a data de volta (check_out_date) .\nInputs opcionais: número de adultos e crianças.\nRegras:Use esse formato para datas: YYYY/MM/DD\nUse esta ferramenta sempre que o plano de viagem exigir deslocamento aéreo entre cidades.",
         "url": "https://serpapi.com/search.json",
         "sendQuery": true,
         "queryParameters": {
@@ -160,10 +140,10 @@
       "type": "n8n-nodes-base.httpRequestTool",
       "typeVersion": 4.3,
       "position": [
-        -736,
-        576
+        1824,
+        416
       ],
-      "id": "ede03f58-cbae-4280-a57c-23a1d6c9158b",
+      "id": "3d8d550b-7a8e-4425-8d7d-c2d727474358",
       "name": "Google Flights_search"
     },
     {
@@ -174,10 +154,10 @@
       "type": "@n8n/n8n-nodes-langchain.chat",
       "typeVersion": 1,
       "position": [
-        -272,
-        352
+        2208,
+        192
       ],
-      "id": "cebfdfc7-9fc3-4545-a44b-fef09a007be4",
+      "id": "c3573e70-36c3-4c85-842e-644702e481d7",
       "name": "Respond to Chat"
     },
     {
@@ -206,10 +186,10 @@
       "type": "n8n-nodes-base.httpRequestTool",
       "typeVersion": 4.3,
       "position": [
-        -608,
-        576
+        2000,
+        416
       ],
-      "id": "b0b99e77-08dd-4382-b460-cec91b624f5e",
+      "id": "7205c121-7acc-4b9a-82b8-db77edb6972e",
       "name": "Google Tripadvisor_search"
     },
     {
@@ -219,11 +199,37 @@
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.3,
       "position": [
-        -480,
-        576
+        2144,
+        416
       ],
-      "id": "c4985212-d537-4953-b99a-e7bdb9b5ee82",
+      "id": "c02f1a88-8955-49b4-af39-39d9c0a47cd9",
       "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5.1",
+          "mode": "list",
+          "cachedResultName": "gpt-5.1"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1360,
+        416
+      ],
+      "id": "5e2e1da6-dfdd-4a98-80e3-a7724e7934af",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "tkKS5g4EKLMRBwWj",
+          "name": "OpenAi account"
+        }
+      }
     }
   ],
   "pinData": {},
@@ -245,17 +251,6 @@
           {
             "node": "AI Agent",
             "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Google Gemini Chat Model": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "ai_languageModel",
             "index": 0
           }
         ]
@@ -326,6 +321,17 @@
           }
         ]
       ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
@@ -333,11 +339,11 @@
     "executionOrder": "v1",
     "availableInMCP": false
   },
-  "versionId": "48106a80-86b0-40ef-a05a-185e10d80530",
+  "versionId": "a829bbd7-35c0-4830-98fb-e0cecbdb0a82",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "edc4a4812a5e5b087f04d30477d7da717fc4ce831ba8a367e362999b444580ee"
+    "instanceId": "22ea323b6c85fbb2de3a8dedaefae6ec8edb82e9c1e169fef139445834eee221"
   },
-  "id": "f5etlM8DPiUj8DaxKKyEV",
+  "id": "WtQ6k3d9ugrlXq5viEu9G",
   "tags": []
 }
