@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { Send } from 'lucide-react'
+import { Send, X } from 'lucide-react'
 import './App.css'
 
 interface Message {
@@ -8,18 +8,62 @@ interface Message {
 }
 
 function App() {
-  const [messages, setMessages] = useState<Message[]>([
-    { sender: 'ai', text: 'Olá! Sou ViajAI, sua assistente de viagens. Como posso ajudá-lo hoje?' }
-  ])
+  const [messages, setMessages] = useState<Message[]>([])
   const [inputValue, setInputValue] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [showAuthPopup, setShowAuthPopup] = useState(false)
+  const [username, setUsername] = useState('')
+  const [tempUsername, setTempUsername] = useState('')
+  const [usernameError, setUsernameError] = useState('')
+  const [sessionId, setSessionId] = useState('')
   const chatEndRef = useRef<HTMLDivElement>(null)
+
+  // Initialize session and check for username on mount
+  useEffect(() => {
+    // Generate session ID
+    const newSessionId = `session-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
+    setSessionId(newSessionId)
+
+    // Check for username in localStorage
+    const savedUsername = localStorage.getItem('viajai_username')
+    if (savedUsername) {
+      setUsername(savedUsername)
+      setMessages([{ sender: 'ai', text: `Olá, ${savedUsername}! Sou ViajAI, sua assistente de viagens. Como posso ajudá-lo hoje?` }])
+    } else {
+      setShowAuthPopup(true)
+    }
+  }, [])
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
+
+  const handleSaveUsername = () => {
+    const trimmedUsername = tempUsername.trim()
+    
+    if (trimmedUsername.length < 3) {
+      setUsernameError('O nome deve ter pelo menos 3 caracteres')
+      return
+    }
+
+    localStorage.setItem('viajai_username', trimmedUsername)
+    setUsername(trimmedUsername)
+    setShowAuthPopup(false)
+    setUsernameError('')
+    setMessages([{ sender: 'ai', text: `Olá, ${trimmedUsername}! Sou ViajAI, sua assistente de viagens. Como posso ajudá-lo hoje?` }])
+    
+    if (trimmedUsername.length < 3) {
+      setUsernameError('O nome deve ter pelo menos 3 caracteres')
+      return
+    }
+
+    localStorage.setItem('viajai_username', trimmedUsername)
+    setUsername(trimmedUsername)
+    setShowAuthPopup(false)
+    setUsernameError('')
+  }
 
   const sendMessage = async () => {
     if (!inputValue.trim()) return
@@ -31,7 +75,7 @@ function App() {
     // Add user message immediately
     setMessages(prev => [...prev, { sender: 'user', text: userMessage }])
     setIsLoading(true)
-    const mySessionId = "user-123-travel-session";
+
     try {
       const response = await fetch('http://localhost:5678/webhook-test/chat-prod', {
         method: 'POST',
@@ -41,7 +85,8 @@ function App() {
         body: JSON.stringify({
           action: 'sendMessage',
           chatInput: userMessage,
-          sessionId: mySessionId
+          sessionId: sessionId,
+          user: username
         })
       })
 
@@ -171,6 +216,63 @@ function App() {
           </div>
         </div>
       </div>
+
+      {/* Authentication Popup */}
+      {showAuthPopup && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-gradient-to-br from-purple-900/95 to-indigo-900/95 rounded-2xl shadow-2xl max-w-md w-full p-8 border border-purple-500/30">
+            <div className="flex flex-col items-center mb-6">
+              <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-purple-400/50 mb-4">
+                <img 
+                  src="/images/viajai_pfp.png" 
+                  alt="ViajAI" 
+                  className="w-full h-full object-cover scale-150 translate-y-2"
+                />
+              </div>
+              <h2 className="text-2xl font-bold text-white mb-2">Bem-vindo ao ViajAI!</h2>
+              <p className="text-purple-200 text-center">Para começar, por favor informe seu nome</p>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <input
+                  type="text"
+                  value={tempUsername}
+                  onChange={(e) => {
+                    setTempUsername(e.target.value)
+                    setUsernameError('')
+                  }}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      handleSaveUsername()
+                    }
+                  }}
+                  placeholder="Digite seu nome..."
+                  className="w-full bg-slate-800/80 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 placeholder-gray-400"
+                  autoFocus
+                />
+                {usernameError && (
+                  <p className="text-red-400 text-sm mt-2 flex items-center gap-1">
+                    <X className="w-4 h-4" />
+                    {usernameError}
+                  </p>
+                )}
+              </div>
+
+              <button
+                onClick={handleSaveUsername}
+                className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white py-3 rounded-lg font-semibold hover:from-purple-600 hover:to-indigo-600 transition-all duration-200 shadow-lg hover:shadow-xl"
+              >
+                Começar
+              </button>
+            </div>
+
+            <p className="text-purple-300/70 text-xs text-center mt-6">
+              Seu nome será salvo localmente para personalizar sua experiência
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

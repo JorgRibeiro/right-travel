@@ -3,11 +3,29 @@
   "nodes": [
     {
       "parameters": {
+        "promptType": "define",
+        "text": "=mensagem do usuário: {{ $json.body.chatInput }}\nMemórias:\n{{ $json.memories.map(m => m.Memory).join('\\n') }}",
+        "options": {
+          "systemMessage": "=ROLE\n\nVocê é um Agente de Viagens amigável, confiável e proativo.\nVocê está conversando com {{ $node[\"Webhook\"].json.body.user }}, em português (pt-BR).\nUse um tom humano, claro e acolhedor, com emojis moderados ✈️🌴\n\nOBJETIVO PRINCIPAL\n\nAjudar {USER} a planejar viagens completas (voos, hotéis e atrações), oferecendo opções claras, comparadas e alinhadas às preferências dele, economizando tempo e dinheiro.\n\nMEMÓRIA DO USUÁRIO (USO OBRIGATÓRIO)\n\nSempre que o usuário enviar uma nova mensagem, verifique se ela contém informações estáveis e reutilizáveis, como:\n\ncidade ou aeroporto de origem\n\nlocal onde o usuário mora\n\norçamento recorrente\n\npreferências de voo ou hospedagem\n\nestilo de viagem\n\nnúmero habitual de viajantes\n\nSe contiver, use a ferramenta Save Memory para armazenar um resumo objetivo dessas informações.\nNunca informe ao usuário que algo foi salvo.\n\nINTERPRETAÇÃO DE MEMÓRIA (REGRA CRÍTICA)\n\nQualquer memória que indique localização do usuário (ex.: “moro em Recife”, “sou de Recife”, “cidade: Recife”, “localização atual”) DEVE ser interpretada como a origem padrão do usuário.\n\nEssa origem padrão deve ser usada automaticamente sempre que o usuário não informar explicitamente a origem.\n\nSó pergunte a origem se não existir nenhuma informação de localização na memória.\n\nSe a memória indicar apenas uma cidade, assuma o principal aeroporto comercial dessa cidade como origem.\n\nEm caso de conflito, a mensagem atual do usuário sempre tem prioridade.\nUse a data e hora das memórias para considerar apenas preferências mais recentes e atualize a memória quando novos padrões se repetirem.\n\nMODO DE OPERAÇÃO (SEM EXPOR RACIOCÍNIO INTERNO)\n\nSempre siga este fluxo:\n\n1️⃣ Entender o pedido\n\nExtraia, quando disponíveis:\n\nCidade de origem (+ IATA)\n\nCidade de destino (+ IATA)\n\nData de ida\n\nData de volta\n\nNúmero de adultos\n\nNúmero de crianças\n\nOrçamento\n\nPreferências (preço, conforto, horários, escalas, hospedagem, estilo)\n\n2️⃣ Completar com padrões inteligentes (defaults)\n\nAno ausente → usar ano atual\n\nOrigem ausente → usar automaticamente a origem padrão obtida da memória\n\nPassageiros ausentes → adults = 1, children = 0\n\nSempre informe ao usuário quando alguma suposição for aplicada.\n\n3️⃣ Buscar informações\n\nAssim que tiver os dados mínimos, utilize as ferramentas apropriadas:\n\nGoogle Flight_search → voos\n\nGoogle Hotels_search → hotéis\n\nGoogle TripAdvisor_search → atrações\n\n4️⃣ Recomendar\n\nFiltre resultados, compare opções e explique por que cada escolha faz sentido para {USER}.\n\n5️⃣ Refinar\n\nSe necessário, faça no máximo 2 perguntas por resposta para ajustar a recomendação.\n\nUSO DE FERRAMENTAS (REGRAS OBRIGATÓRIAS)\n\n✈️ Google Flight_search\nUse somente quando tiver:\n\nOrigem (cidade ou IATA)\n\nDestino (cidade ou IATA)\n\nData de ida (e volta, se aplicável)\n\nNúmero de passageiros\n\n🏨 Google Hotels_search\nUse somente quando tiver:\n\nDestino\n\nCheck-in\n\nCheck-out\n\nNúmero de adultos\nSe não houver informação nem na mensagem nem na memória, use 1 adulto.\n\n🗺️ Google TripAdvisor_search\nUse quando:\n\n{USER} pedir atrações, roteiro ou “o que fazer”\n\nOu quando complementar a experiência fizer sentido\n\n🚫 Se os dados mínimos não estiverem disponíveis, não chame a API — pergunte apenas o essencial.\n\nPREÇOS E HISTÓRICO\n\nNunca invente preços antigos.\n\nSó compare com histórico se o workflow fornecer dados reais.\n\nCaso contrário, explique tendências sazonais.\n\nFORMATO PADRÃO DE RESPOSTA (SEMPRE USAR)\n\n✅ Resumo\nO que foi entendido + suposições aplicadas.\n\n✈️ Voos (se aplicável)\nAté 3 opções com:\n\nCompanhia\n\nPreço aproximado\n\nHorário\n\nDuração\n\nEscalas\nDestaque a melhor opção e justifique.\n\n🏨 Hotéis (se aplicável)\nAté 3 opções com:\n\nNome\n\nPreço médio/noite\n\nLocalização\n\nAvaliação\nDestaque a melhor opção e justifique.\n\n🗺️ Atrações / Roteiro (se aplicável)\nSugira por região ou por dia, adaptado ao estilo da viagem.\n\n❓ Perguntas rápidas (máx. 2)\nApenas o necessário para avançar.\n\n🔜 Próximos passos\nExplique claramente o que pode ser feito a seguir.\n\nLIMITES E BOAS PRÁTICAS\n\nSeja claro, direto e útil.\n\nEvite respostas genéricas.\n\nNunca faça mais de 2 perguntas por turno.\n\nPriorize sempre custo-benefício e clareza.",
+          "returnIntermediateSteps": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1184,
+        -48
+      ],
+      "id": "0e85d8ac-7c12-42d9-a4e9-d534984182bc",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
         "model": {
           "__rl": true,
-          "value": "gpt-5.1-2025-11-13",
+          "value": "gpt-4.1-mini",
           "mode": "list",
-          "cachedResultName": "gpt-5.1-2025-11-13"
+          "cachedResultName": "gpt-4.1-mini"
         },
         "builtInTools": {},
         "options": {}
@@ -15,29 +33,31 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.3,
       "position": [
-        -320,
-        224
+        928,
+        176
       ],
-      "id": "eda95956-3452-48e2-a6eb-e19f0ca64610",
+      "id": "63481308-e985-4eb3-89e3-78d36c829a61",
       "name": "OpenAI Chat Model",
       "credentials": {
         "openAiApi": {
-          "id": "tkKS5g4EKLMRBwWj",
-          "name": "OpenAi account"
+          "id": "luHZymUKGIodvn2F",
+          "name": "jorge account"
         }
       }
     },
     {
       "parameters": {
-        "contextWindowLength": 20
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.body.sessionId }}",
+        "contextWindowLength": 10
       },
       "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
       "typeVersion": 1.3,
       "position": [
-        -192,
-        224
+        1056,
+        176
       ],
-      "id": "8cd6337d-eda3-4b52-bc1c-22dce52484b1",
+      "id": "69fbea72-a185-4c24-88be-c181c1e12ec3",
       "name": "Simple Memory1"
     },
     {
@@ -82,11 +102,197 @@
       "type": "n8n-nodes-base.httpRequestTool",
       "typeVersion": 4.3,
       "position": [
-        -64,
-        224
+        1184,
+        176
       ],
-      "id": "16ac1b03-18d7-4e35-b2df-2492ff27bd4c",
+      "id": "d7a269ee-9072-43b6-a7cf-bf2ab19c740a",
       "name": "Google Hotels_search"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Use esta ferramenta para pesquisar atrações turísticas, pontos de interesse, restaurantes e ler avaliações detalhadas de viajantes no Tripadvisor. É a ferramenta principal para planejar roteiros, descobrir 'o que fazer' em um destino e verificar a popularidade de locais. Input principal: O nome da cidade ou ponto turístico no parâmetro 'q'. Use sempre que o usuário pedir recomendações de lazer ou quiser saber a opinião de outros viajantes.",
+        "url": "https://serpapi.com/search.json",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', `Required\nO termo de busca para o Tripadvisor. Deve conter obrigatoriamente o nome da cidade, um ponto turístico específico ou o nome de uma atração. Exemplos: 'Paris', 'Cristo Redentor', 'Museu do Louvre'. Não inclua datas ou número de pessoas neste campo.`, 'string') }}"
+            },
+            {
+              "name": "api_key",
+              "value": "=7020fdeced29cf0c4a8ca7f140ec4870219905a1119668c05308ba1687e74fdb"
+            },
+            {
+              "name": "ssrc",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters2_Value', `Optional\nThis parameter specifies the search filter you want to use for the Tripadvisor search.\nAvailable options:\na - All Results\nr - Restaurants\nA - Things to Do\nh - Hotels\ng - Destinations\nv - Vacation Rentals\nf - Forums\n\nNOTE: Tripadvisor has discontinued support for Vacation Rentals. As a result, using ssrc=v may return incomplete results or no results at all.`, 'string') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        1312,
+        176
+      ],
+      "id": "e33d0355-d54f-4146-b94c-b1d4ae75a29f",
+      "name": "Google Tripadvisor_search"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Use esta ferramenta quando o usuário fornecer uma informação nova e útil para lembrar depois (preferências, datas, nomes, cidade, orçamento). Envie um único campo memory com uma frase curta resumindo o que deve ser lembrado.",
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appLzFWambPh8qsb3",
+          "mode": "list",
+          "cachedResultName": "Agent Memories",
+          "cachedResultUrl": "https://airtable.com/appLzFWambPh8qsb3"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbll3xZKpyyu5xPq8",
+          "mode": "list",
+          "cachedResultName": "Table 1",
+          "cachedResultUrl": "https://airtable.com/appLzFWambPh8qsb3/tbll3xZKpyyu5xPq8"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Memory": "={{ $fromAI('memory') }}",
+            "User": "={{ $json.body.user }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Memory",
+              "displayName": "Memory",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "User",
+              "displayName": "User",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Creadet",
+              "displayName": "Creadet",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtableTool",
+      "typeVersion": 2.1,
+      "position": [
+        1440,
+        176
+      ],
+      "id": "f34d2571-cda2-4bed-a2b3-117acd2bf89a",
+      "name": "Save Memory",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "47LlzqNXvr8F8BKd",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appLzFWambPh8qsb3",
+          "mode": "list",
+          "cachedResultName": "Agent Memories",
+          "cachedResultUrl": "https://airtable.com/appLzFWambPh8qsb3"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbll3xZKpyyu5xPq8",
+          "mode": "list",
+          "cachedResultName": "Table 1",
+          "cachedResultUrl": "https://airtable.com/appLzFWambPh8qsb3/tbll3xZKpyyu5xPq8"
+        },
+        "filterByFormula": "=({User} = '{{ $json.body.user }}')",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        480,
+        32
+      ],
+      "id": "bed29b15-3b4b-4cee-9c15-d0956dab52a8",
+      "name": "Get Memories",
+      "alwaysOutputData": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "47LlzqNXvr8F8BKd",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "memories",
+        "include": "specifiedFields",
+        "fieldsToInclude": "Memory, Creadet",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        704,
+        32
+      ],
+      "id": "0700a786-43c5-4d3c-af96-388b7b40d54d",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "chat-prod",
+        "responseMode": "lastNode",
+        "options": {
+          "allowedOrigins": "*",
+          "rawBody": false
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        256,
+        -48
+      ],
+      "id": "2c6a28c3-6332-42fb-aaaa-05c8636ece80",
+      "name": "Webhook",
+      "webhookId": "b370cdcf-53d2-48a7-b3da-718c7543dc89"
     },
     {
       "parameters": {
@@ -134,243 +340,26 @@
       "type": "n8n-nodes-base.httpRequestTool",
       "typeVersion": 4.3,
       "position": [
-        112,
-        256
+        1568,
+        176
       ],
-      "id": "236e5a2d-03a3-4e7f-9fef-3e0a3cbcd752",
+      "id": "f68a198d-68ff-4d8f-8c7f-07e2a61eae9d",
       "name": "Google Flights_search"
     },
     {
       "parameters": {
-        "toolDescription": "Use esta ferramenta para pesquisar atrações turísticas, pontos de interesse, restaurantes e ler avaliações detalhadas de viajantes no Tripadvisor. É a ferramenta principal para planejar roteiros, descobrir 'o que fazer' em um destino e verificar a popularidade de locais. Input principal: O nome da cidade ou ponto turístico no parâmetro 'q'. Use sempre que o usuário pedir recomendações de lazer ou quiser saber a opinião de outros viajantes.",
-        "url": "https://serpapi.com/search.json",
-        "sendQuery": true,
-        "queryParameters": {
-          "parameters": [
-            {
-              "name": "q",
-              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', `Required\nO termo de busca para o Tripadvisor. Deve conter obrigatoriamente o nome da cidade, um ponto turístico específico ou o nome de uma atração. Exemplos: 'Paris', 'Cristo Redentor', 'Museu do Louvre'. Não inclua datas ou número de pessoas neste campo.`, 'string') }}"
-            },
-            {
-              "name": "api_key",
-              "value": "=7020fdeced29cf0c4a8ca7f140ec4870219905a1119668c05308ba1687e74fdb"
-            },
-            {
-              "name": "ssrc",
-              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters2_Value', `Optional\nThis parameter specifies the search filter you want to use for the Tripadvisor search.\nAvailable options:\na - All Results\nr - Restaurants\nA - Things to Do\nh - Hotels\ng - Destinations\nv - Vacation Rentals\nf - Forums\n\nNOTE: Tripadvisor has discontinued support for Vacation Rentals. As a result, using ssrc=v may return incomplete results or no results at all.`, 'string') }}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequestTool",
-      "typeVersion": 4.3,
-      "position": [
-        256,
-        256
-      ],
-      "id": "20ba95bd-585c-4844-9699-e95066a3edf5",
-      "name": "Google Tripadvisor_search"
-    },
-    {
-      "parameters": {
-        "descriptionType": "manual",
-        "toolDescription": "Use esta ferramenta quando o usuário fornecer uma informação nova e útil para lembrar depois (preferências, datas, nomes, cidade, orçamento). Envie um único campo memory com uma frase curta resumindo o que deve ser lembrado.",
-        "operation": "create",
-        "base": {
-          "__rl": true,
-          "value": "appLzFWambPh8qsb3",
-          "mode": "list",
-          "cachedResultName": "Agent Memories",
-          "cachedResultUrl": "https://airtable.com/appLzFWambPh8qsb3"
-        },
-        "table": {
-          "__rl": true,
-          "value": "tbll3xZKpyyu5xPq8",
-          "mode": "list",
-          "cachedResultName": "Table 1",
-          "cachedResultUrl": "https://airtable.com/appLzFWambPh8qsb3/tbll3xZKpyyu5xPq8"
-        },
-        "columns": {
-          "mappingMode": "defineBelow",
-          "value": {
-            "User": "Jorge",
-            "Memory": "={{ $fromAI('memory') }}"
-          },
-          "matchingColumns": [],
-          "schema": [
-            {
-              "id": "Memory",
-              "displayName": "Memory",
-              "required": false,
-              "defaultMatch": false,
-              "canBeUsedToMatch": true,
-              "display": true,
-              "type": "string",
-              "readOnly": false,
-              "removed": false
-            },
-            {
-              "id": "User",
-              "displayName": "User",
-              "required": false,
-              "defaultMatch": false,
-              "canBeUsedToMatch": true,
-              "display": true,
-              "type": "string",
-              "readOnly": false,
-              "removed": false
-            },
-            {
-              "id": "Creadet",
-              "displayName": "Creadet",
-              "required": false,
-              "defaultMatch": false,
-              "canBeUsedToMatch": true,
-              "display": true,
-              "type": "string",
-              "readOnly": true,
-              "removed": true
-            }
-          ],
-          "attemptToConvertTypes": false,
-          "convertFieldsToString": false
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.airtableTool",
-      "typeVersion": 2.1,
-      "position": [
-        432,
-        272
-      ],
-      "id": "91166686-dad5-44b5-bce7-737c09e576d2",
-      "name": "Save Memory",
-      "credentials": {
-        "airtableTokenApi": {
-          "id": "sRnJlmxf8IOcFa1i",
-          "name": "Airtable Personal Access Token account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "options": {
-          "responseMode": "responseNodes"
-        }
-      },
-      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
-      "typeVersion": 1.4,
-      "position": [
-        -1216,
-        16
-      ],
-      "id": "f5555bf9-2887-4c95-aab0-b61eb4a5a8d8",
-      "name": "When chat message received",
-      "webhookId": "c686848c-b36e-4c28-abea-074f4f05a592",
-      "alwaysOutputData": true
-    },
-    {
-      "parameters": {
-        "operation": "search",
-        "base": {
-          "__rl": true,
-          "value": "appLzFWambPh8qsb3",
-          "mode": "list",
-          "cachedResultName": "Agent Memories",
-          "cachedResultUrl": "https://airtable.com/appLzFWambPh8qsb3"
-        },
-        "table": {
-          "__rl": true,
-          "value": "tbll3xZKpyyu5xPq8",
-          "mode": "list",
-          "cachedResultName": "Table 1",
-          "cachedResultUrl": "https://airtable.com/appLzFWambPh8qsb3/tbll3xZKpyyu5xPq8"
-        },
-        "filterByFormula": "=({User} = 'Jorge')",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.airtable",
-      "typeVersion": 2.1,
-      "position": [
-        -976,
-        176
-      ],
-      "id": "488c581e-88b3-4528-ad07-f65a2b8b12dd",
-      "name": "Get Memories",
-      "alwaysOutputData": true,
-      "credentials": {
-        "airtableTokenApi": {
-          "id": "sRnJlmxf8IOcFa1i",
-          "name": "Airtable Personal Access Token account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "aggregate": "aggregateAllItemData",
-        "destinationFieldName": "memories",
-        "include": "specifiedFields",
-        "fieldsToInclude": "Memory, Creadet",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.aggregate",
-      "typeVersion": 1,
-      "position": [
-        -752,
-        176
-      ],
-      "id": "5d60927e-0b46-44f7-8b42-76657869e81e",
-      "name": "Aggregate"
-    },
-    {
-      "parameters": {
         "mode": "combine",
-        "combineBy": "combineAll",
+        "combineBy": "combineByPosition",
         "options": {}
       },
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        -528,
-        0
+        944,
+        -48
       ],
-      "id": "9b4042c5-a6e8-436d-b3ee-52212e3aafc8",
+      "id": "0b0651c4-8c84-4487-b4a6-1335d45c0f3f",
       "name": "Merge"
-    },
-    {
-      "parameters": {
-        "options": {
-          "systemMessage": "=ROLE\n\nVocê é um Agente de Viagens amigável, confiável e proativo.\nVocê está conversando com {USER}, em português (pt-BR).\nUse um tom humano, claro e acolhedor, com emojis moderados ✈️🌴\n\nOBJETIVO PRINCIPAL\n\nAjudar {USER} a planejar viagens completas (voos, hotéis e atrações), oferecendo opções claras, comparadas e alinhadas às preferências dele, economizando tempo e dinheiro.\n\nMEMÓRIA DO USUÁRIO (USO OBRIGATÓRIO)\n\nSempre que o usuário enviar uma nova mensagem, verifique se ela contém informações estáveis e reutilizáveis, como:\n\ncidade ou aeroporto de origem\n\nlocal onde o usuário mora\n\norçamento recorrente\n\npreferências de voo ou hospedagem\n\nestilo de viagem\n\nnúmero habitual de viajantes\n\nSe contiver, use a ferramenta Save Memory para armazenar um resumo objetivo dessas informações.\nNunca informe ao usuário que algo foi salvo.\n\nINTERPRETAÇÃO DE MEMÓRIA (REGRA CRÍTICA)\n\nQualquer memória que indique localização do usuário (ex.: “moro em Recife”, “sou de Recife”, “cidade: Recife”, “localização atual”) DEVE ser interpretada como a origem padrão do usuário.\n\nEssa origem padrão deve ser usada automaticamente sempre que o usuário não informar explicitamente a origem.\n\nSó pergunte a origem se não existir nenhuma informação de localização na memória.\n\nSe a memória indicar apenas uma cidade, assuma o principal aeroporto comercial dessa cidade como origem.\n\nEm caso de conflito, a mensagem atual do usuário sempre tem prioridade.\nUse a data e hora das memórias para considerar apenas preferências mais recentes e atualize a memória quando novos padrões se repetirem.\n\nMODO DE OPERAÇÃO (SEM EXPOR RACIOCÍNIO INTERNO)\n\nSempre siga este fluxo:\n\n1️⃣ Entender o pedido\n\nExtraia, quando disponíveis:\n\nCidade de origem (+ IATA)\n\nCidade de destino (+ IATA)\n\nData de ida\n\nData de volta\n\nNúmero de adultos\n\nNúmero de crianças\n\nOrçamento\n\nPreferências (preço, conforto, horários, escalas, hospedagem, estilo)\n\n2️⃣ Completar com padrões inteligentes (defaults)\n\nAno ausente → usar ano atual\n\nOrigem ausente → usar automaticamente a origem padrão obtida da memória\n\nPassageiros ausentes → adults = 1, children = 0\n\nSempre informe ao usuário quando alguma suposição for aplicada.\n\n3️⃣ Buscar informações\n\nAssim que tiver os dados mínimos, utilize as ferramentas apropriadas:\n\nGoogle Flight_search → voos\n\nGoogle Hotels_search → hotéis\n\nGoogle TripAdvisor_search → atrações\n\n4️⃣ Recomendar\n\nFiltre resultados, compare opções e explique por que cada escolha faz sentido para {USER}.\n\n5️⃣ Refinar\n\nSe necessário, faça no máximo 2 perguntas por resposta para ajustar a recomendação.\n\nUSO DE FERRAMENTAS (REGRAS OBRIGATÓRIAS)\n\n✈️ Google Flight_search\nUse somente quando tiver:\n\nOrigem (cidade ou IATA)\n\nDestino (cidade ou IATA)\n\nData de ida (e volta, se aplicável)\n\nNúmero de passageiros\n\n🏨 Google Hotels_search\nUse somente quando tiver:\n\nDestino\n\nCheck-in\n\nCheck-out\n\nNúmero de adultos\nSe não houver informação nem na mensagem nem na memória, use 1 adulto.\n\n🗺️ Google TripAdvisor_search\nUse quando:\n\n{USER} pedir atrações, roteiro ou “o que fazer”\n\nOu quando complementar a experiência fizer sentido\n\n🚫 Se os dados mínimos não estiverem disponíveis, não chame a API — pergunte apenas o essencial.\n\nPREÇOS E HISTÓRICO\n\nNunca invente preços antigos.\n\nSó compare com histórico se o workflow fornecer dados reais.\n\nCaso contrário, explique tendências sazonais.\n\nFORMATO PADRÃO DE RESPOSTA (SEMPRE USAR)\n\n✅ Resumo\nO que foi entendido + suposições aplicadas.\n\n✈️ Voos (se aplicável)\nAté 3 opções com:\n\nCompanhia\n\nPreço aproximado\n\nHorário\n\nDuração\n\nEscalas\nDestaque a melhor opção e justifique.\n\n🏨 Hotéis (se aplicável)\nAté 3 opções com:\n\nNome\n\nPreço médio/noite\n\nLocalização\n\nAvaliação\nDestaque a melhor opção e justifique.\n\n🗺️ Atrações / Roteiro (se aplicável)\nSugira por região ou por dia, adaptado ao estilo da viagem.\n\n❓ Perguntas rápidas (máx. 2)\nApenas o necessário para avançar.\n\n🔜 Próximos passos\nExplique claramente o que pode ser feito a seguir.\n\nLIMITES E BOAS PRÁTICAS\n\nSeja claro, direto e útil.\n\nEvite respostas genéricas.\n\nNunca faça mais de 2 perguntas por turno.\n\nPriorize sempre custo-benefício e clareza.",
-          "returnIntermediateSteps": false
-        }
-      },
-      "type": "@n8n/n8n-nodes-langchain.agent",
-      "typeVersion": 3.1,
-      "position": [
-        -80,
-        0
-      ],
-      "id": "59b92d3d-ef29-4176-aa3d-a7737a489762",
-      "name": "AI Agent",
-      "alwaysOutputData": true
-    },
-    {
-      "parameters": {
-        "message": "={{ $json.output }}",
-        "waitUserReply": false,
-        "options": {
-          "memoryConnection": false
-        }
-      },
-      "type": "@n8n/n8n-nodes-langchain.chat",
-      "typeVersion": 1,
-      "position": [
-        336,
-        0
-      ],
-      "id": "66f5ace4-98c8-4d49-8d87-bd465fb2e4d0",
-      "name": "Respond to Chat"
     }
   ],
   "pinData": {},
@@ -408,17 +397,6 @@
         ]
       ]
     },
-    "Google Flights_search": {
-      "ai_tool": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "ai_tool",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Google Tripadvisor_search": {
       "ai_tool": [
         [
@@ -441,22 +419,6 @@
         ]
       ]
     },
-    "When chat message received": {
-      "main": [
-        [
-          {
-            "node": "Get Memories",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Merge",
-            "type": "main",
-            "index": 1
-          }
-        ]
-      ]
-    },
     "Get Memories": {
       "main": [
         [
@@ -474,6 +436,38 @@
           {
             "node": "Merge",
             "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        []
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get Memories",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Flights_search": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
             "index": 0
           }
         ]
@@ -489,29 +483,18 @@
           }
         ]
       ]
-    },
-    "AI Agent": {
-      "main": [
-        [
-          {
-            "node": "Respond to Chat",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
     }
   },
-  "active": false,
+  "active": true,
   "settings": {
     "executionOrder": "v1",
     "availableInMCP": false
   },
-  "versionId": "0588cb07-2bae-4872-9a99-ecf17e7373a1",
+  "versionId": "f5b8b713-c7c0-4e91-b498-19076634b1d6",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "22ea323b6c85fbb2de3a8dedaefae6ec8edb82e9c1e169fef139445834eee221"
+    "instanceId": "edc4a4812a5e5b087f04d30477d7da717fc4ce831ba8a367e362999b444580ee"
   },
-  "id": "4-Mxzy4OwZfVgd3V1ZeDD",
+  "id": "f5etlM8DPiUj8DaxKKyEV",
   "tags": []
 }
