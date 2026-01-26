@@ -1,0 +1,192 @@
+{
+  "name": "Voos",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "originLocationCode"
+            },
+            {
+              "name": "destinationLocationCode"
+            },
+            {
+              "name": "departureDate"
+            },
+            {
+              "name": "returnDate"
+            },
+            {
+              "name": "adults",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "id": "c055762a-8fe7-4141-a639-df2372f30060",
+      "typeVersion": 1.1,
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        272,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://test.api.amadeus.com/v1/security/oauth2/token",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "grant_type",
+              "value": "client_credentials"
+            },
+            {
+              "name": "client_id",
+              "value": "MPGjLikELueHrDGVkOscTWVsaiqh91s3"
+            },
+            {
+              "name": "client_secret",
+              "value": "ASUF9TFhBAxPUPbP"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        496,
+        352
+      ],
+      "id": "dbb7060f-d0c9-4703-b0f8-a721d5eaf589",
+      "name": "Amadeus OAuth Token"
+    },
+    {
+      "parameters": {
+        "url": "https://test.api.amadeus.com/v2/shopping/flight-offers",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "originLocationCode",
+              "value": "={{ $('When Executed by Another Workflow').item.json.originLocationCode }}"
+            },
+            {
+              "name": "destinationLocationCode",
+              "value": "={{ $('When Executed by Another Workflow').item.json.destinationLocationCode }}"
+            },
+            {
+              "name": "departureDate",
+              "value": "={{ $('When Executed by Another Workflow').item.json.departureDate }}"
+            },
+            {
+              "name": "returnDate",
+              "value": "={{ $('When Executed by Another Workflow').item.json.returnDate }}"
+            },
+            {
+              "name": "adults",
+              "value": "={{ $('When Executed by Another Workflow').item.json.adults }}"
+            },
+            {
+              "name": "currencyCode",
+              "value": "BRL"
+            },
+            {
+              "name": "max",
+              "value": "5"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.access_token }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        720,
+        352
+      ],
+      "id": "0a11ec52-a730-41c4-beae-cec3942d21a1",
+      "name": "Buscar VOOS1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1) Normaliza payload (às vezes o n8n guarda como string)\nlet payload = $json;\n\n// Caso 1: veio como string em payload.data (ou em payload.body)\nif (typeof payload.data === \"string\") {\n  payload = JSON.parse(payload.data);\n} else if (payload.body && typeof payload.body === \"string\") {\n  payload = JSON.parse(payload.body);\n} else if (payload.body && typeof payload.body === \"object\") {\n  payload = payload.body;\n}\n\n// 2) Pega lista de ofertas\nconst offers = Array.isArray(payload.data) ? payload.data : [];\nconst carriers = payload.dictionaries?.carriers || {};\n\n// Helpers\nfunction pickSegmentInfo(itinerary) {\n  const segs = itinerary?.segments || [];\n  if (!segs.length) return null;\n\n  const first = segs[0];\n  const last = segs[segs.length - 1];\n\n  return {\n    from: first.departure?.iataCode || null,\n    to: last.arrival?.iataCode || null,\n    departAt: first.departure?.at || null,\n    arriveAt: last.arrival?.at || null,\n    duration: itinerary?.duration || null,\n    stops: Math.max(0, segs.length - 1),\n    segments: segs.map(s => ({\n      from: s.departure?.iataCode || null,\n      to: s.arrival?.iataCode || null,\n      departAt: s.departure?.at || null,\n      arriveAt: s.arrival?.at || null,\n      carrierCode: s.carrierCode || null,\n      number: s.number || null,\n      duration: s.duration || null\n    }))\n  };\n}\n\nfunction airlineNameFromOffer(offer) {\n  const code =\n    (offer.validatingAirlineCodes && offer.validatingAirlineCodes[0]) ||\n    offer.itineraries?.[0]?.segments?.[0]?.carrierCode ||\n    null;\n\n  return {\n    code,\n    name: code ? (carriers[code] || code) : null\n  };\n}\n\n// 3) Simplifica\nconst simplified = offers.slice(0, 3).map((offer) => {\n  const priceTotal = offer.price?.total || null;\n  const currency = offer.price?.currency || null;\n\n  const airline = airlineNameFromOffer(offer);\n\n  const outbound = pickSegmentInfo(offer.itineraries?.[0]);\n  const inbound = pickSegmentInfo(offer.itineraries?.[1]);\n\n  return {\n    airline: airline.name,\n    airlineCode: airline.code,\n    price: { total: priceTotal, currency },\n    outbound,\n    inbound,\n    // opcional: guarda o id da oferta (às vezes útil depois)\n    offerId: offer.id || null\n  };\n});\n\n// 4) Saída pequena e limpa\nreturn [{\n  json: {\n    flightOffers: simplified,\n    meta: {\n      totalOffersReceived: offers.length\n    }\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        944,
+        352
+      ],
+      "id": "6a11700a-9346-45b5-8e50-f170fc27a0f6",
+      "name": "Simplify Flights"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Amadeus OAuth Token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Amadeus OAuth Token": {
+      "main": [
+        [
+          {
+            "node": "Buscar VOOS1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar VOOS1": {
+      "main": [
+        [
+          {
+            "node": "Simplify Flights",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simplify Flights": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "e9f00deb-c05e-4838-b772-9ce2b0852241",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "22ea323b6c85fbb2de3a8dedaefae6ec8edb82e9c1e169fef139445834eee221"
+  },
+  "id": "Ahkk4wM4A86EA7Np",
+  "tags": []
+}

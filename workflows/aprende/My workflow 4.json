@@ -1,5 +1,5 @@
 {
-  "name": "My workflow 2",
+  "name": "Aprende",
   "nodes": [
     {
       "parameters": {
@@ -173,8 +173,8 @@
         "workflowInputs": {
           "mappingMode": "defineBelow",
           "value": {
-            "q": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('q', `Required\nO termo de busca para o Tripadvisor. Deve conter obrigatoriamente o nome da cidade, um ponto turístico específico ou o nome de uma atração. Exemplos: 'Paris', 'Cristo Redentor', 'Museu do Louvre'. Não inclua datas ou número de pessoas neste campo.`, 'string') }}",
-            "ssrc": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('ssrc', `Optional\nThis parameter specifies the search filter you want to use for the Tripadvisor search.\nAvailable options:\na - All Results\nr - Restaurants\nA - Things to Do\nh - Hotels\ng - Destinations\nv - Vacation Rentals\nf - Forums\n\nNOTE: Tripadvisor has discontinued support for Vacation Rentals. As a result, using ssrc=v may return incomplete results or no results at all.`, 'string') }}"
+            "q": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('q', `Parameter defines the query you want to search. You can use anything that you would use in a regular Tripadvisor search.\n`, 'string') }}",
+            "ssrc": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('ssrc', `Optional\nThis parameter specifies the search filter you want to use for the Tripadvisor search.\nAvailable options:\na - All Results\nr - Restaurants\nh - Hotels\ng - Destinations\nv - Vacation Rentals\nf - Forums\n\nNOTE: Tripadvisor has discontinued support for Vacation Rentals. As a result, using ssrc=v may return incomplete results or no results at all.`, 'string') }}"
           },
           "matchingColumns": [],
           "schema": [
@@ -317,7 +317,7 @@
       "typeVersion": 2.1,
       "position": [
         -1264,
-        664
+        672
       ],
       "id": "dfe842bc-799d-4182-8de4-01a5d350ba8e",
       "name": "Get Memories",
@@ -341,7 +341,7 @@
       "typeVersion": 1,
       "position": [
         -1040,
-        664
+        672
       ],
       "id": "76a5049d-af3c-4b2b-974b-c9b3be68fa67",
       "name": "Aggregate"
@@ -373,7 +373,7 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
       "position": [
-        -344,
+        -352,
         592
       ],
       "id": "188ad2da-effd-4bb9-b409-dd32d9bc1d4c",
@@ -564,7 +564,7 @@
     "executionOrder": "v1",
     "availableInMCP": false
   },
-  "versionId": "21de9af5-8a2c-4559-86a3-da0559f5ee55",
+  "versionId": "22f8379e-9d40-44af-acdb-f77eb557c004",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "22ea323b6c85fbb2de3a8dedaefae6ec8edb82e9c1e169fef139445834eee221"

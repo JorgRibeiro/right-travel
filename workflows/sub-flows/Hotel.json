@@ -1,0 +1,130 @@
+{
+  "name": "Hotel",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "q"
+            },
+            {
+              "name": "check_in_date"
+            },
+            {
+              "name": "check_out_date"
+            },
+            {
+              "name": "adults"
+            }
+          ]
+        }
+      },
+      "id": "c055762a-8fe7-4141-a639-df2372f30060",
+      "typeVersion": 1.1,
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        272,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://serpapi.com/search.json",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "engine",
+              "value": "google_hotels"
+            },
+            {
+              "name": "q",
+              "value": "={{ $json.q }}"
+            },
+            {
+              "name": "check_in_date",
+              "value": "={{ $json.check_in_date }}"
+            },
+            {
+              "name": "check_out_date",
+              "value": "={{ $json.check_out_date }}"
+            },
+            {
+              "name": "adults",
+              "value": "={{ $json.adults }}"
+            },
+            {
+              "name": "currency",
+              "value": "BRL"
+            },
+            {
+              "name": "api_key",
+              "value": "7020fdeced29cf0c4a8ca7f140ec4870219905a1119668c05308ba1687e74fdb"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        480,
+        352
+      ],
+      "id": "0351f92e-3882-44f3-bc1c-8d6b525a7645",
+      "name": "Hotel search"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Acessa o array de hotéis (ou retorna vazio para não quebrar)\nconst properties = items[0].json.properties || [];\n\n// Processamento: Pega os TOP 5 e limpa os dados\nconst result = properties.slice(0, 3).map(hotel => {\n  return {\n    nome: hotel.name,\n    // O SerpApi costuma mandar o preço dentro de 'rate_per_night' ou 'price' direto\n    preco: hotel.rate_per_night ? hotel.rate_per_night.lowest : (hotel.price || \"N/A\"),\n    nota: hotel.overall_rating,\n    reviews: hotel.reviews, // Apenas o número de reviews, ajuda na credibilidade\n    // Link direto é vital para o agente oferecer a ação final\n    link: hotel.link,\n    // Truque de Mestre: Corta a descrição em 100 caracteres para economizar tokens\n    descricao: hotel.description ? hotel.description.substring(0, 100) + \"...\" : \"\"\n  }\n});\n\n// Retorna um objeto limpo para o Agente ler\nreturn [{ json: { hoteis_disponiveis: result } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        688,
+        352
+      ],
+      "id": "84991238-3dcf-4f53-a2dd-11b69c806167",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Hotel search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hotel search": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "b9a4d7ee-6ffe-42d5-8c63-7f001f815f60",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "22ea323b6c85fbb2de3a8dedaefae6ec8edb82e9c1e169fef139445834eee221"
+  },
+  "id": "iLUgYlUMdYP21Pzy",
+  "tags": []
+}

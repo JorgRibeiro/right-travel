@@ -1,0 +1,111 @@
+{
+  "name": "DripAdvisor",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "q"
+            },
+            {
+              "name": "ssrc"
+            }
+          ]
+        }
+      },
+      "id": "c055762a-8fe7-4141-a639-df2372f30060",
+      "typeVersion": 1.1,
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        272,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://serpapi.com/search.json",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "engine",
+              "value": "=tripadvisor"
+            },
+            {
+              "name": "q",
+              "value": "={{ $json.q }}"
+            },
+            {
+              "name": "ssrc",
+              "value": "={{ $json.ssrc }}"
+            },
+            {
+              "name": "api_key",
+              "value": "=7020fdeced29cf0c4a8ca7f140ec4870219905a1119668c05308ba1687e74fdb"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        496,
+        352
+      ],
+      "id": "a81a28b1-cc38-4103-9a30-e72cbf3290d4",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "// O SerpApi retorna os locais dentro de 'local_results'\nconst results = items[0].json.local_results || [];\n\nif (results.length === 0) {\n  return [{ json: { erro: \"Nenhuma atração encontrada. Tente especificar melhor a cidade.\" } }];\n}\n\n// Filtra top 5 e simplifica\nconst atracoes = results.slice(0, 3).map(place => ({\n  nome: place.title,\n  categoria: place.type,\n  nota: place.rating, // Ex: 4.7\n  reviews: place.reviews, // Ex: 12500 (dá autoridade à sugestão)\n  endereco: place.address,\n  descricao: place.description || \"Sem descrição disponível\",\n  aberto_agora: place.open_state // Ex: \"Aberto agora\"\n}));\n\nreturn [{ json: { atracoes_turisticas: atracoes } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        704,
+        352
+      ],
+      "id": "1911c446-1787-446c-a68b-14bdeb0f89d9",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "b3c00960-0204-4de5-9922-6b3498488b4a",
+  "meta": {
+    "instanceId": "22ea323b6c85fbb2de3a8dedaefae6ec8edb82e9c1e169fef139445834eee221"
+  },
+  "id": "039vyaJARsbpWzTA",
+  "tags": []
+}

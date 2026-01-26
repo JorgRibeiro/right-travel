@@ -1,21 +1,21 @@
 {
-  "name": "My workflow",
+  "name": "Reflexivo simples",
   "nodes": [
     {
       "parameters": {
         "promptType": "define",
         "text": "={{ JSON.stringify({\n  userMessage: $('Webhook').item.json.body.chatInput,\n  trip: $node[\"AI Agent1\"].json.output,\n  flights: $node[\"Simplify Flights\"].json.flightOffers,\n  hotels: $node[\"Simplify Hotels\"].json.hotelOffers\n}, null, 2) }}\n",
         "options": {
-          "systemMessage": "Você é o Agente Reflexivo Simples (Condition → Action) do projeto “Assistente de Planejamento de Viagens”.\n\nVocê NÃO mantém estado.\nVocê NÃO possui memória.\nVocê responde apenas com base nos dados fornecidos nesta mensagem.\n\nVocê receberá um JSON com:\n- trip: informações da viagem (origem, destino, datas, passageiros)\n- flights: lista (até 5) de opções de voos simplificadas\n- hotels: lista (até 5) de opções de hotéis simplificadas (com preço/datas quando disponível)\n- userMessage: mensagem original do usuário\n\nTarefas:\n1) Confirmar o resumo da viagem (origem → destino, datas, passageiros).\n2) Selecionar e apresentar as 3 melhores opções de voo (priorize menor preço; em empate, menos paradas).\n   - Para cada voo, mostre: companhia, preço total e moeda, horário de ida/volta (se houver), duração e paradas.\n3) Selecionar e apresentar até 3 hotéis (priorize menor preço total quando existir).\n   - Para cada hotel, mostre: nome, preço total (se existir), datas (se existirem), e endereço/bairro se disponível.\n4) Listar 3 pontos turísticos famosos da cidade de destino (sem inventar preços).\n5) Se algum dado essencial estiver faltando (ex.: destino, datas ou voos/hotéis vazios), peça somente o que falta ou explique que não há resultados.\n\nRegras:\n- NÃO invente preços, horários, companhias, hotéis ou detalhes que não estejam no JSON.\n- Se flights estiver vazio, diga que não encontrou voos e sugira ajustar aeroporto/datas.\n- Se hotels estiver vazio, diga que não encontrou hotéis e sugira tentar outras datas ou aumentar a busca.\n- Seja objetivo e use bullets.\n\nFormato de saída (texto):\n✅ Resumo da viagem\n✈️ Voos (3 opções)\n🏨 Hotéis (até 3 opções)\n📍 3 pontos turísticos\n"
+          "systemMessage": "=Você é o Agente Reflexivo Simples (Condition → Action) do projeto “Agente de Planejamento de Viagens”.\n\nVocê NÃO mantém estado.\nVocê NÃO possui memória.\nVocê responde apenas com base nos dados fornecidos nesta mensagem.\n\nVocê receberá um JSON com:\n- trip: informações da viagem (origem, destino, datas, passageiros)\n- flights: lista (até 5) de opções de voos simplificadas\n- hotels: lista (até 5) de opções de hotéis simplificadas (com preço/datas quando disponível)\n- userMessage: mensagem original do usuário\n\nTarefas:\n1) Fazer um plano de viagem, igual a um agente de viagens faria (origem → destino, datas, passageiros).\n2) Apresente a cidade, mostre os melhores pontos turísticos e por que é um bom local\n2) Selecionar e apresentar as melhores opções de voo (priorize menor preço; em empate, menos paradas).\n   - Para cada voo, mostre: companhia, preço total e moeda, horário de ida/volta (se houver), duração e paradas.\n3) Selecionar e apresentar até 3 hotéis (priorize menor preço total quando existir).\n   - Para cada hotel, mostre: nome, preço total (se existir), datas (se existirem), e endereço/bairro se disponível.\n4) Listar 3 pontos turísticos famosos da cidade de destino (sem inventar preços).\n5) Se algum dado essencial estiver faltando (ex.: destino, datas ou voos/hotéis vazios), peça somente o que falta ou explique que não há resultados.\n\nRegras:\n- NÃO invente preços, horários, companhias, hotéis ou detalhes que não estejam no JSON.\n- Se flights estiver vazio, diga que não encontrou voos e sugira ajustar aeroporto/datas.\n- Se hotels estiver vazio, diga que não encontrou hotéis e sugira tentar outras datas ou aumentar a busca.\n- Seja objetivo e use bullets.\n\nFormato de saída (texto):\n✅ Resumo da viagem\n✈️ Voos (3 opções)\n🏨 Hotéis (até 3 opções)\n📍 3 pontos turísticos\n"
         }
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
       "position": [
-        1760,
-        -32
+        1840,
+        0
       ],
-      "id": "1b2aa7d3-7794-492d-ae92-72edd3261b46",
+      "id": "88e44a4e-8f0c-4676-b716-a6d3b319d4ae",
       "name": "AI Agent"
     },
     {
@@ -30,10 +30,10 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
       "position": [
-        352,
-        -32
+        432,
+        0
       ],
-      "id": "84839741-1414-48bc-84c2-93b6d5c4a700",
+      "id": "7e1b306a-1a02-40f1-8d7e-45d2564c7426",
       "name": "AI Agent1",
       "notesInFlow": false
     },
@@ -64,10 +64,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        704,
-        -32
+        784,
+        0
       ],
-      "id": "64585a5f-69cd-4e7d-815d-07ffcb77070a",
+      "id": "4f4b9f59-8a37-44da-8f61-b140ede3ef9c",
       "name": "Amadeus OAuth Token"
     },
     {
@@ -77,10 +77,10 @@
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.3,
       "position": [
-        512,
-        176
+        592,
+        208
       ],
-      "id": "187b93c3-d2b4-4022-8cb0-96aaf0bb9fb9",
+      "id": "1202d97d-efaa-4317-b52e-560aa4653329",
       "name": "Structured Output Parser"
     },
     {
@@ -133,10 +133,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        912,
-        -32
+        992,
+        0
       ],
-      "id": "49bbfa5f-29c6-4665-a1bc-30cda2c0be58",
+      "id": "7e52b3fb-288e-4802-9dd5-0bd89f681d58",
       "name": "Buscar VOOS1"
     },
     {
@@ -193,10 +193,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1328,
-        -32
+        1408,
+        0
       ],
-      "id": "211c9de8-e5c3-4d56-9950-52a8acb53608",
+      "id": "d45a6d2a-c67a-40b2-a8a4-5b12e2773c41",
       "name": "Buscar Hotéis"
     },
     {
@@ -206,10 +206,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1504,
-        -32
+        1584,
+        0
       ],
-      "id": "f7c163c1-2e8a-4a7f-92a4-f15bd883c59a",
+      "id": "7f5aa784-cd13-4b11-8863-4b6a8ca8da12",
       "name": "Simplify Hotels"
     },
     {
@@ -219,10 +219,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1120,
-        -32
+        1200,
+        0
       ],
-      "id": "0b5a9eb4-6921-4efb-b262-e7c68c2b0538",
+      "id": "7b9afce1-cdc8-4f88-a809-5356e2df93aa",
       "name": "Simplify Flights"
     },
     {
@@ -238,10 +238,10 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
       "position": [
-        -80,
-        -32
+        0,
+        0
       ],
-      "id": "7aad1a1a-a626-46e3-95ad-5427cecfa851",
+      "id": "687a87cb-ec3d-45fe-9175-1fb2fc3d7604",
       "name": "Webhook",
       "webhookId": "b370cdcf-53d2-48a7-b3da-718c7543dc89"
     },
@@ -259,15 +259,15 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.3,
       "position": [
-        256,
-        176
+        336,
+        208
       ],
-      "id": "b22d555d-db00-4602-9991-a30c891b00db",
+      "id": "2d15f238-9652-4e4d-aa16-35e37ff00b31",
       "name": "OpenAI Chat Model",
       "credentials": {
         "openAiApi": {
-          "id": "luHZymUKGIodvn2F",
-          "name": "jorge account"
+          "id": "tkKS5g4EKLMRBwWj",
+          "name": "OpenAi account"
         }
       }
     },
@@ -285,15 +285,15 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.3,
       "position": [
-        1680,
-        160
+        1760,
+        192
       ],
-      "id": "91e9c452-3ded-45c4-a34f-11878a7e7b84",
+      "id": "125fcb1c-1b31-4699-bc97-27ba70d0b2e5",
       "name": "OpenAI Chat Model1",
       "credentials": {
         "openAiApi": {
-          "id": "luHZymUKGIodvn2F",
-          "name": "jorge account"
+          "id": "tkKS5g4EKLMRBwWj",
+          "name": "OpenAi account"
         }
       }
     }
@@ -416,11 +416,11 @@
     "executionOrder": "v1",
     "availableInMCP": false
   },
-  "versionId": "9dd61206-d1ca-4fc0-9fb9-68735187b86d",
+  "versionId": "da52d02e-c8dc-4415-b64f-d1bcc96d1c3a",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "edc4a4812a5e5b087f04d30477d7da717fc4ce831ba8a367e362999b444580ee"
+    "instanceId": "22ea323b6c85fbb2de3a8dedaefae6ec8edb82e9c1e169fef139445834eee221"
   },
-  "id": "xQplMwbEXXyVFX2MVF-f_",
+  "id": "4GbdbK7qTepTxq9pUTwCi",
   "tags": []
 }
