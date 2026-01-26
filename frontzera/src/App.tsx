@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { Send, X } from 'lucide-react'
+import ReactMarkdown from 'react-markdown'
 import './App.css'
 
 interface Message {
@@ -166,7 +167,13 @@ function App() {
                     : 'bg-white/95 text-gray-900 rounded-bl-none'
                 }`}
               >
-                <p className="text-sm md:text-base break-words text-left">{message.text}</p>
+                <div className={`text-sm md:text-base break-words text-left prose prose-sm max-w-none ${
+                  message.sender === 'user' 
+                    ? 'prose-invert prose-headings:text-white prose-p:text-white prose-strong:text-white prose-em:text-white prose-code:text-purple-100 prose-pre:bg-purple-900/50 prose-a:text-purple-200 prose-li:text-white'
+                    : 'prose-headings:text-gray-900 prose-p:text-gray-900 prose-strong:text-gray-900 prose-em:text-gray-700 prose-code:bg-purple-100 prose-code:text-purple-800 prose-pre:bg-gray-100 prose-a:text-purple-600 prose-li:text-gray-900'
+                }`}>
+                  <ReactMarkdown>{message.text}</ReactMarkdown>
+                </div>
               </div>
             </div>
           ))}
