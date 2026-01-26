@@ -5,17 +5,17 @@
       "parameters": {
         "hasOutputParser": true,
         "options": {
-          "systemMessage": "Persona: Você é um Agente Planner de Viagens. Você não segue um roteiro fixo; você avalia o que tem e decide o próximo passo para alcançar o objetivo.\n\nSuas Ferramentas: Você possui ferramentas para: flight_search (voos), Google Hotels_search (hotéis) e tripadvisor_search (atrações).\n\nObjetivo: Transformar o Sstart​ (estado inicial vazio ou parcial) em Sgoal​ (viagem completa: voos + hotel + atrações).\n\nRegras: Para chamadas de API que usam datas, apenas faça a requisição quando o usuário expor a data, e todas no formato YYYY/MM/DD.\n\nLógica de Decisão:\n\n    Analise a Memória: Veja o que já foi extraído ou buscado. Atualize o current_state.\n\n    Identifique Lacunas: > - Se falta Destino ou Data: Defina user_message com uma pergunta ao usuário.\n\n        Se tem os dados mas não buscou nas APIs: Use a ferramenta adequada. Informe no thought_process.\n\n    Critério de Parada (Distance=0): Quando tiver todos os dados consolidados (voos, hotéis e atrações), escreva o roteiro final detalhado no campo user_message e defina distance_to_goal como 0.\n\nInstruções de Saída:\n\n    Se precisar de mais informações do usuário, user_message deve ser a pergunta.\n\n    Se estiver apenas processando internamente (chamando tools), user_message pode ser algo como \"Estou pesquisando as melhores opções para você...\".\n\n    Responda APENAS com JSON.",
+          "systemMessage": "=# ROLE\nVocê é um Agente de Viagens experiente, entusiasmado e extremamente proativo.\nVocê está conversando com Usuário, em português (pt-BR), trate ele como um amigo, cliente VIP.\nSeu objetivo é definido pelo cliente, faça um planejamento e a cada passo concluído, olhe o resultado e pense \"O que eu tenho agora?\".\n\n# GUIDELINES (Diretrizes de Comportamento)\n1. **Naturalidade Extrema:**\n   - NUNCA use termos como: \"banco de dados\", \"memória\", \"histórico\", \"json\", \"API\", \"sistema\" ou \"variáveis\".\n   - NUNCA justifique como você sabe algo (ex: \"Vi no seu perfil que...\", \"Baseado no que você disse antes...\", \"Pela sua memória...\").\n\n2. **Gestão de Informação Ausente:**\n   - Se faltar um dado (como datas), pergunte casualmente. Não diga \"dado não encontrado\".\n   - Pergunte de forma fluida: \"Para quando você está planejando essa ida?\" em vez de \"Informe a data de partida\".\n   \n3. **Passo à passo:**\n   - Seu Estado Inicial sempre será vazio ou parcial (Sstart).\n   - E a cada passo mais perto do seu objetivo, incremente o Sgol(Meta definida pelo usuário - em relação a viagens).\n \n4. ** Critério de Parada (Distance = 0):**\n   - Quando tiver todos os dados consolidados (voos, hotéis e atrações), escreva o roteiro final detalhado no campo user_message e defina distance_to_goal como 0.\n\n# TOOLS & PROCESS\n## Pesquisas (TripAdvisor, Hotels, Flights)\n- Use estas ferramentas para buscar dados reais.\n- Não peça permissão. Se o usuário pediu uma viagem, ele quer que você pesquise.\n- Apresente os resultados como recomendações pessoais: \"Encontrei um voo ótimo...\"\n- Se o usuário não especificar o ano, use 2026.\n\n**INSTRUÇÃO DE RESPOSTA:**\nAnalise a última frase do usuário.\n- Se precisar de mais informações do usuário, user_message deve ser a pergunta.\n- Faça as perguntas necessárias (datas, orçamento) para prosseguir.\n- Responda APENAS com JSON.",
           "returnIntermediateSteps": true
         }
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
       "position": [
-        1616,
-        192
+        -936,
+        -64
       ],
-      "id": "aa1033ec-7966-4e3f-bf23-10a744c9e13b",
+      "id": "286b2b44-90e0-4e4c-8aa4-1f9109597dc1",
       "name": "AI Agent"
     },
     {
@@ -23,10 +23,10 @@
       "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
       "typeVersion": 1.3,
       "position": [
-        1488,
-        416
+        -1056,
+        160
       ],
-      "id": "468594d1-4acc-44b2-ad51-111c4ea505ae",
+      "id": "2bc83992-a235-47c3-bc2f-26d6a2e8e449",
       "name": "Simple Memory1"
     },
     {
@@ -38,13 +38,66 @@
       "type": "@n8n/n8n-nodes-langchain.chatTrigger",
       "typeVersion": 1.4,
       "position": [
-        1136,
-        192
+        -1408,
+        -64
       ],
-      "id": "c01d1b44-2a6f-4f80-ab3e-cbf33179392f",
+      "id": "95d3add5-4644-478e-b7ca-7bb1d35b0155",
       "name": "When chat message received",
       "webhookId": "c686848c-b36e-4c28-abea-074f4f05a592",
       "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "message": "={{ $json.output.user_message }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chat",
+      "typeVersion": 1,
+      "position": [
+        -336,
+        -64
+      ],
+      "id": "7f84c5a2-55cd-4cf5-a700-edc69483e23f",
+      "name": "Respond to Chat"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"thought_process\": \"O que já fiz e o que farei agora\",\n  \"current_state\": \"Descrição textual do progresso\",\n  \"goal\": \"Descrição do objetivo final\",\n  \"distance_to_goal\": 0.5,\n  \"user_message\": \"Mensagem direta para o usuário (pergunta ou resposta)\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -544,
+        160
+      ],
+      "id": "5df58825-71e1-4055-b283-920190b113da",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5.1",
+          "mode": "list",
+          "cachedResultName": "gpt-5.1"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -1184,
+        160
+      ],
+      "id": "5c1404a8-ffb6-45a2-92e1-04f3b8c803bb",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "tkKS5g4EKLMRBwWj",
+          "name": "OpenAi account"
+        }
+      }
     },
     {
       "parameters": {
@@ -88,77 +141,11 @@
       "type": "n8n-nodes-base.httpRequestTool",
       "typeVersion": 4.3,
       "position": [
-        1616,
-        416
+        -928,
+        160
       ],
-      "id": "39aa571a-8626-460f-ba28-fddc8aacae78",
-      "name": "Google Hotels_search"
-    },
-    {
-      "parameters": {
-        "toolDescription": "Use esta ferramenta para buscar opções de voos diretamente no Google Flights.\nÉ ideal para obter preços, companhias aéreas, duração, escalas e disponibilidade em tempo quase real.\nInputs obrigatórios: aeroporto ou cidade de origem (departure_id), aeroporto ou cidade de destino (arrival_id), data de ida (check_in_date) e a data de volta (check_out_date) .\nInputs opcionais: número de adultos e crianças.\nRegras:Use esse formato para datas: YYYY/MM/DD\nUse esta ferramenta sempre que o plano de viagem exigir deslocamento aéreo entre cidades.",
-        "url": "https://serpapi.com/search.json",
-        "sendQuery": true,
-        "queryParameters": {
-          "parameters": [
-            {
-              "name": "engine",
-              "value": "google_hotels"
-            },
-            {
-              "name": "q",
-              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters1_Value', ``, 'string') }}"
-            },
-            {
-              "name": "api_key",
-              "value": "=7020fdeced29cf0c4a8ca7f140ec4870219905a1119668c05308ba1687e74fdb"
-            },
-            {
-              "name": "currency",
-              "value": "BRL"
-            },
-            {
-              "name": "check_in_date",
-              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters4_Value', `should be in the format of YYYY-MM-DD. E.g. 2023-01-31.`, 'string') }}"
-            },
-            {
-              "name": "departure_id",
-              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters5_Value', `IATA MODEL`, 'string') }}"
-            },
-            {
-              "name": "arrival_id",
-              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters6_Value', ``, 'string') }}"
-            },
-            {
-              "name": "check_out_date",
-              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters7_Value', `should be in the format of YYYY-MM-DD. E.g. 2023-01-31.`, 'string') }}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequestTool",
-      "typeVersion": 4.3,
-      "position": [
-        1824,
-        416
-      ],
-      "id": "3d8d550b-7a8e-4425-8d7d-c2d727474358",
-      "name": "Google Flights_search"
-    },
-    {
-      "parameters": {
-        "message": "={{ $json.output.user_message }}",
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.chat",
-      "typeVersion": 1,
-      "position": [
-        2208,
-        192
-      ],
-      "id": "c3573e70-36c3-4c85-842e-644702e481d7",
-      "name": "Respond to Chat"
+      "id": "f6271a06-1d43-49d0-baac-41b016a14b1b",
+      "name": "Google Hotels_search1"
     },
     {
       "parameters": {
@@ -186,50 +173,63 @@
       "type": "n8n-nodes-base.httpRequestTool",
       "typeVersion": 4.3,
       "position": [
-        2000,
-        416
+        -800,
+        160
       ],
-      "id": "7205c121-7acc-4b9a-82b8-db77edb6972e",
-      "name": "Google Tripadvisor_search"
+      "id": "bcdc745d-cfb2-40f4-9949-227a89081337",
+      "name": "Google Tripadvisor_search1"
     },
     {
       "parameters": {
-        "jsonSchemaExample": "{\n  \"thought_process\": \"O que já fiz e o que farei agora\",\n  \"current_state\": \"Descrição textual do progresso\",\n  \"goal\": \"Descrição do objetivo final\",\n  \"distance_to_goal\": 0.5,\n  \"user_message\": \"Mensagem direta para o usuário (pergunta ou resposta)\"\n}"
-      },
-      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
-      "typeVersion": 1.3,
-      "position": [
-        2144,
-        416
-      ],
-      "id": "c02f1a88-8955-49b4-af39-39d9c0a47cd9",
-      "name": "Structured Output Parser"
-    },
-    {
-      "parameters": {
-        "model": {
-          "__rl": true,
-          "value": "gpt-5.1",
-          "mode": "list",
-          "cachedResultName": "gpt-5.1"
+        "toolDescription": "Use esta ferramenta para buscar opções de voos diretamente no Google Flights.\nÉ ideal para obter preços, companhias aéreas, duração, escalas e disponibilidade em tempo quase real.\nInputs obrigatórios: aeroporto ou cidade de origem (departure_id), aeroporto ou cidade de destino (arrival_id), data de ida (check_in_date) e a data de volta (check_out_date) .\nInputs opcionais: número de adultos e crianças.\nRegras:Use esse formato para datas: YYYY/MM/DD\nUse esta ferramenta sempre que o plano de viagem exigir deslocamento aéreo entre cidades.",
+        "url": "https://serpapi.com/search.json",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "engine",
+              "value": "google_flights"
+            },
+            {
+              "name": "departure_id",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters1_Value', `IATA MODEL`, 'string') }}"
+            },
+            {
+              "name": "api_key",
+              "value": "=7020fdeced29cf0c4a8ca7f140ec4870219905a1119668c05308ba1687e74fdb"
+            },
+            {
+              "name": "currency",
+              "value": "BRL"
+            },
+            {
+              "name": "arrival_id",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters4_Value', `IATA MODEL`, 'string') }}"
+            },
+            {
+              "name": "outbound_date",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters5_Value', `should be in the format of YYYY-MM-DD. E.g. 2023-01-31.`, 'string') }}"
+            },
+            {
+              "name": "return_date",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters6_Value', `should be in the format of YYYY-MM-DD. E.g. 2023-01-31.`, 'string') }}"
+            },
+            {
+              "name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters7_Name', ``, 'string') }}",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters7_Value', ``, 'string') }}"
+            }
+          ]
         },
-        "builtInTools": {},
         "options": {}
       },
-      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
-      "typeVersion": 1.3,
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
       "position": [
-        1360,
-        416
+        -672,
+        160
       ],
-      "id": "5e2e1da6-dfdd-4a98-80e3-a7724e7934af",
-      "name": "OpenAI Chat Model",
-      "credentials": {
-        "openAiApi": {
-          "id": "tkKS5g4EKLMRBwWj",
-          "name": "OpenAi account"
-        }
-      }
+      "id": "00bfcec2-932a-4736-a591-cb3af8aa347b",
+      "name": "Google Flights_search1"
     }
   ],
   "pinData": {},
@@ -251,28 +251,6 @@
           {
             "node": "AI Agent",
             "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Google Hotels_search": {
-      "ai_tool": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "ai_tool",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Google Flights_search": {
-      "ai_tool": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "ai_tool",
             "index": 0
           }
         ]
@@ -300,17 +278,6 @@
         ]
       ]
     },
-    "Google Tripadvisor_search": {
-      "ai_tool": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "ai_tool",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Structured Output Parser": {
       "ai_outputParser": [
         [
@@ -332,6 +299,39 @@
           }
         ]
       ]
+    },
+    "Google Hotels_search1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Tripadvisor_search1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Flights_search1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
@@ -339,11 +339,11 @@
     "executionOrder": "v1",
     "availableInMCP": false
   },
-  "versionId": "a829bbd7-35c0-4830-98fb-e0cecbdb0a82",
+  "versionId": "2e661501-5af8-4eab-964f-7633f2c937fa",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "22ea323b6c85fbb2de3a8dedaefae6ec8edb82e9c1e169fef139445834eee221"
   },
-  "id": "WtQ6k3d9ugrlXq5viEu9G",
+  "id": "4-Mxzy4OwZfVgd3V1ZeDD",
   "tags": []
 }
