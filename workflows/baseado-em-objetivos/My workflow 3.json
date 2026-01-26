@@ -1,5 +1,5 @@
 {
-  "name": "My workflow",
+  "name": "My workflow 2",
   "nodes": [
     {
       "parameters": {
@@ -7,17 +7,17 @@
         "text": "={{ $json.body.chatInput }}",
         "hasOutputParser": true,
         "options": {
-          "systemMessage": "=# ROLE\nVocê é um Agente de Viagens experiente, entusiasmado e extremamente proativo.\nVocê está conversando com Usuário, em português (pt-BR), trate ele como um amigo, cliente VIP. Foque em usar a API de avião como meio de Transporte, mas se o destino for menor que 500Km deixe em aberto para o usuário. \nSeu objetivo é definido pelo cliente, faça um planejamento e a cada passo concluído, olhe o resultado e pense \"O que eu tenho agora?\".\n\n# GUIDELINES (Diretrizes de Comportamento)\n1. **Naturalidade Extrema:**\n   - NUNCA use termos como: \"banco de dados\", \"memória\", \"histórico\", \"json\", \"API\", \"sistema\" ou \"variáveis\".\n   - NUNCA justifique como você sabe algo (ex: \"Vi no seu perfil que...\", \"Baseado no que você disse antes...\", \"Pela sua memória...\").\n\n2. **Gestão de Informação Ausente:**\n   - Se faltar um dado (como datas), pergunte casualmente. Não diga \"dado não encontrado\".\n   - Pergunte de forma fluida: \"Para quando você está planejando essa ida?\" em vez de \"Informe a data de partida\".\n   \n3. **Passo à passo:**\n   - Seu Estado Inicial sempre será vazio ou parcial (Sstart).\n   - E a cada passo mais perto do seu objetivo, incremente o Sgol(Meta definida pelo usuário - em relação a viagens).\n \n4. ** Critério de Parada (Distance = 0):**\n   - Quando tiver todos os dados consolidados (voos, hotéis e atrações), escreva o roteiro final detalhado no campo user_message e defina distance_to_goal como 0. E Informe ao usuário que o objetivo foi concluído.\n\n# TOOLS & PROCESS\n## Pesquisas (TripAdvisor, Hotels, Flights)\n- Use estas ferramentas para buscar dados reais.\n- Não peça permissão. Se o usuário pediu uma viagem, ele quer que você pesquise.\n- Apresente os resultados como recomendações pessoais: \"Encontrei um voo ótimo...\"\n- Se o usuário não especificar o ano, use 2026.\n- Use ambas as Apis de voos, mas priorize os resultados da Amadeus\n\n**INSTRUÇÃO DE RESPOSTA:**\nAnalise a última frase do usuário.\n- Se precisar de mais informações do usuário, user_message deve ser a pergunta.\n- Faça as perguntas necessárias (datas, orçamento) para prosseguir.\n- Responda APENAS com JSON.",
+          "systemMessage": "=# ROLE\nVocê é um Agente de Viagens experiente, entusiasmado e extremamente proativo.\nVocê está conversando com Usuário, em português (pt-BR), trate ele como um amigo, cliente VIP. Foque em usar a API de avião como meio de Transporte, mas se o destino for menor que 500Km deixe em aberto para o usuário. \nSeu objetivo é definido pelo cliente, faça um planejamento e a cada passo concluído, olhe o resultado e pense \"O que eu tenho agora?\".\n\n# GUIDELINES (Diretrizes de Comportamento)\n1. **Naturalidade Extrema:**\n   - NUNCA use termos como: \"banco de dados\", \"memória\", \"histórico\", \"json\", \"API\", \"sistema\" ou \"variáveis\".\n   - NUNCA justifique como você sabe algo (ex: \"Vi no seu perfil que...\", \"Baseado no que você disse antes...\", \"Pela sua memória...\").\n\n2. **Gestão de Informação Ausente:**\n   - Se faltar um dado (como datas), pergunte casualmente. Não diga \"dado não encontrado\".\n   - Pergunte de forma fluida: \"Para quando você está planejando essa ida?\" em vez de \"Informe a data de partida\".\n   \n3. **Passo à passo:**\n   - Seu Estado Inicial sempre será vazio ou parcial (Sstart).\n   - E a cada passo mais perto do seu objetivo, incremente o Sgol(Meta definida pelo usuário - em relação a viagens).\n \n4. ** Critério de Parada (Distance = 0):**\n   - Quando tiver todos os dados consolidados (voos, hotéis e atrações), escreva o roteiro final detalhado no campo user_message e defina distance_to_goal como 0. E Informe ao usuário que o objetivo foi concluído.\n\n# TOOLS & PROCESS\n## Pesquisas (TripAdvisor, Hotels , Flights)\n- Use estes workflows para buscar dados reais.\n- Não peça permissão. Se o usuário pediu uma viagem, ele quer que você pesquise.\n- Apresente os resultados como recomendações pessoais: \"Encontrei um voo ótimo...\"\n- Se o usuário não especificar o ano, use 2026.\n- Sempre que tiver os dados mínimos, faça a requisição, para uma melhor resposta.\n\n**INSTRUÇÃO DE RESPOSTA:**\nAnalise a última frase do usuário.\n- Se precisar de mais informações do usuário, user_message deve ser a pergunta.\n- Faça as perguntas necessárias (datas, orçamento) para prosseguir.\n- Responda APENAS com JSON.",
           "returnIntermediateSteps": true
         }
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
       "position": [
-        1000,
-        304
+        -960,
+        64
       ],
-      "id": "5071bbb8-c291-494b-8312-5e584dd7f6c9",
+      "id": "350968a9-4b16-4b19-a3be-5de6ef0bb863",
       "name": "AI Agent"
     },
     {
@@ -28,10 +28,10 @@
       "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
       "typeVersion": 1.3,
       "position": [
-        880,
-        528
+        -1072,
+        256
       ],
-      "id": "8403d85f-22b0-4843-a15b-67b05b5942c2",
+      "id": "2a14cfec-4b5e-4741-acfb-98b385da1ccb",
       "name": "Simple Memory1"
     },
     {
@@ -41,10 +41,10 @@
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.3,
       "position": [
-        1392,
-        528
+        -432,
+        240
       ],
-      "id": "64e38242-c024-4cbe-8acf-b75924f37c17",
+      "id": "15d86cab-eb3f-496a-800b-6bb8de85614b",
       "name": "Structured Output Parser"
     },
     {
@@ -52,8 +52,7 @@
         "model": {
           "__rl": true,
           "value": "gpt-5.1",
-          "mode": "list",
-          "cachedResultName": "gpt-5.1"
+          "mode": "list"
         },
         "builtInTools": {},
         "options": {}
@@ -61,149 +60,17 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.3,
       "position": [
-        752,
-        528
+        -1216,
+        240
       ],
-      "id": "70ed67f3-91d6-4489-ad52-578e9d146ada",
+      "id": "f280c9b0-0562-4eff-b21e-f7b88900ab05",
       "name": "OpenAI Chat Model",
       "credentials": {
         "openAiApi": {
-          "id": "luHZymUKGIodvn2F",
-          "name": "jorge account"
+          "id": "tkKS5g4EKLMRBwWj",
+          "name": "OpenAi account"
         }
       }
-    },
-    {
-      "parameters": {
-        "toolDescription": "Use esta ferramenta para pesquisar atrações turísticas, pontos de interesse, restaurantes e ler avaliações detalhadas de viajantes no Tripadvisor. É a ferramenta principal para planejar roteiros, descobrir 'o que fazer' em um destino e verificar a popularidade de locais. Input principal: O nome da cidade ou ponto turístico no parâmetro 'q'. Use sempre que o usuário pedir recomendações de lazer ou quiser saber a opinião de outros viajantes.",
-        "url": "https://serpapi.com/search.json",
-        "sendQuery": true,
-        "queryParameters": {
-          "parameters": [
-            {
-              "name": "q",
-              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', `Required\nO termo de busca para o Tripadvisor. Deve conter obrigatoriamente o nome da cidade, um ponto turístico específico ou o nome de uma atração. Exemplos: 'Paris', 'Cristo Redentor', 'Museu do Louvre'. Não inclua datas ou número de pessoas neste campo.`, 'string') }}"
-            },
-            {
-              "name": "api_key",
-              "value": "=7020fdeced29cf0c4a8ca7f140ec4870219905a1119668c05308ba1687e74fdb"
-            },
-            {
-              "name": "ssrc",
-              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters2_Value', `Optional\nThis parameter specifies the search filter you want to use for the Tripadvisor search.\nAvailable options:\na - All Results\nr - Restaurants\nA - Things to Do\nh - Hotels\ng - Destinations\nv - Vacation Rentals\nf - Forums\n\nNOTE: Tripadvisor has discontinued support for Vacation Rentals. As a result, using ssrc=v may return incomplete results or no results at all.`, 'string') }}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequestTool",
-      "typeVersion": 4.3,
-      "position": [
-        1008,
-        528
-      ],
-      "id": "37a998e3-f380-4488-bb70-87ee897917a6",
-      "name": "Google Tripadvisor_search"
-    },
-    {
-      "parameters": {
-        "toolDescription": "Use esta ferramenta para buscar opções de voos diretamente no Google Flights.\nÉ ideal para obter preços, companhias aéreas, duração, escalas e disponibilidade em tempo quase real.\nInputs obrigatórios: aeroporto ou cidade de origem (departure_id), aeroporto ou cidade de destino (arrival_id), data de ida (check_in_date) e a data de volta (check_out_date) .\nInputs opcionais: número de adultos e crianças.\nRegras:Use esse formato para datas: YYYY/MM/DD\nUse esta ferramenta sempre que o plano de viagem exigir deslocamento aéreo entre cidades.",
-        "url": "https://serpapi.com/search.json",
-        "sendQuery": true,
-        "queryParameters": {
-          "parameters": [
-            {
-              "name": "engine",
-              "value": "google_flights"
-            },
-            {
-              "name": "departure_id",
-              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters1_Value', `IATA MODEL`, 'string') }}"
-            },
-            {
-              "name": "api_key",
-              "value": "=7020fdeced29cf0c4a8ca7f140ec4870219905a1119668c05308ba1687e74fdb"
-            },
-            {
-              "name": "currency",
-              "value": "BRL"
-            },
-            {
-              "name": "arrival_id",
-              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters4_Value', `IATA MODEL`, 'string') }}"
-            },
-            {
-              "name": "outbound_date",
-              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters5_Value', `should be in the format of YYYY-MM-DD. E.g. 2023-01-31.`, 'string') }}"
-            },
-            {
-              "name": "return_date",
-              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters6_Value', `should be in the format of YYYY-MM-DD. E.g. 2023-01-31.`, 'string') }}"
-            },
-            {
-              "name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters7_Name', ``, 'string') }}",
-              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters7_Value', ``, 'string') }}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequestTool",
-      "typeVersion": 4.3,
-      "position": [
-        1264,
-        528
-      ],
-      "id": "e5a96e0e-e2c1-4980-a90f-9809673f26f2",
-      "name": "Google Flights_search"
-    },
-    {
-      "parameters": {
-        "toolDescription": "Use esta ferramenta para buscar opções de hospedagem, hotéis e aluguéis de temporada diretamente no Google Hotels. É ideal para obter preços, avaliações e disponibilidade em tempo real. Inputs obrigatórios: Localização ou nome do hotel (parâmetro 'q'), data de check-in, data de check-out e número de adultos envolvidos nessa viajem. Use sempre que o plano de viagem exigir uma estadia.",
-        "url": "https://serpapi.com/search.json",
-        "sendQuery": true,
-        "queryParameters": {
-          "parameters": [
-            {
-              "name": "engine",
-              "value": "google_hotels"
-            },
-            {
-              "name": "q",
-              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters1_Value', `Required\nParameter defines the search query. You can use anything that you would use in a regular Google Hotels search.`, 'string') }}"
-            },
-            {
-              "name": "check_in_date",
-              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters2_Value', `Required\nParameter defines the check-in date. The format is YYYY-MM-DD. e.g. 2026-01-23`, 'string') }}"
-            },
-            {
-              "name": "check_out_date",
-              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters3_Value', `Required\nParameter defines the check-out date. The format is YYYY-MM-DD. e.g. 2026-01-24`, 'string') }}"
-            },
-            {
-              "name": "adults",
-              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters4_Value', `Optional\nParameter defines the number of adults. Default to 2.`, 'string') }}"
-            },
-            {
-              "name": "currency",
-              "value": "BRL"
-            },
-            {
-              "name": "api_key",
-              "value": "=7020fdeced29cf0c4a8ca7f140ec4870219905a1119668c05308ba1687e74fdb"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequestTool",
-      "typeVersion": 4.3,
-      "position": [
-        1136,
-        528
-      ],
-      "id": "7aa2c0d1-2160-4048-8b0e-6f7989ec4ba5",
-      "name": "Google Hotels_search"
     },
     {
       "parameters": {
@@ -218,12 +85,223 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
       "position": [
-        528,
-        304
+        -1424,
+        64
       ],
-      "id": "6d35edc1-c96b-4796-a31a-3dadcec8563e",
+      "id": "59961965-073a-4c70-a6d5-5be0b2355154",
       "name": "Webhook",
       "webhookId": "b370cdcf-53d2-48a7-b3da-718c7543dc89"
+    },
+    {
+      "parameters": {
+        "description": "=# Use esta ferramenta para buscar opções de voos diretamente no Amadeus Flights.\nÉ ideal para obter preços, companhias aéreas, duração, escalas e disponibilidade em tempo quase real.\n## Inputs obrigatórios: \n- Aeroporto ou cidade de origem em IATA (originLocationCode).\n- Aeroporto ou cidade de destino (destinationLocationCode).\n- data de ida (departureDate).\n- data de volta (returnDate).\n- qauntidade de adults. (coloque 1 como defalut, se não possuir inputs)\n## Regras:\n- Use esse formato para datas: YYYY/MM/DD.\n- Use esta ferramenta sempre que o plano de viagem exigir deslocamento aéreo entre cidades.\n",
+        "workflowId": {
+          "__rl": true,
+          "value": "Ahkk4wM4A86EA7Np",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/Ahkk4wM4A86EA7Np",
+          "cachedResultName": "Voos"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "adults": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('adults', ``, 'number') }}",
+            "originLocationCode": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('originLocationCode', ``, 'string') }}",
+            "destinationLocationCode": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('destinationLocationCode', ``, 'string') }}",
+            "departureDate": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('departureDate', `should be in the format of YYYY-MM-DD. E.g. 2023-01-31.`, 'string') }}",
+            "returnDate": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('returnDate', `should be in the format of YYYY-MM-DD. E.g. 2023-01-31.`, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "originLocationCode",
+              "displayName": "originLocationCode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "destinationLocationCode",
+              "displayName": "destinationLocationCode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "departureDate",
+              "displayName": "departureDate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "returnDate",
+              "displayName": "returnDate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "adults",
+              "displayName": "adults",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        -960,
+        256
+      ],
+      "id": "61576edb-d609-48e4-a5d1-0dfc7fbafc1b",
+      "name": "Flights_search"
+    },
+    {
+      "parameters": {
+        "description": "=# Use esta ferramenta para buscar opções de hospedagem, hotéis e aluguéis de temporada diretamente no Google Hotels. É ideal para obter preços, avaliações e disponibilidade em tempo real. \n\n## Inputs obrigatórios: \n- Localização ou nome do hotel (parâmetro 'q').\n- data de check-in.\n- data de check-out.\n- número de adultos envolvidos nessa viajem. \n\nUse sempre que o plano de viagem que exigir uma estadia.\n",
+        "workflowId": {
+          "__rl": true,
+          "value": "iLUgYlUMdYP21Pzy",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/iLUgYlUMdYP21Pzy",
+          "cachedResultName": "Hotel"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "q": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('q', `Nome da cidade por extenso (Ex: Maceió, Recife, Rio de Janeiro).`, 'string') }}",
+            "check_in_date": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('check_in_date', `should be in the format of YYYY-MM-DD. E.g. 2023-01-31.`, 'string') }}",
+            "check_out_date": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('check_out_date', `should be in the format of YYYY-MM-DD. E.g. 2023-01-31.`, 'string') }}",
+            "adults": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('adults', `Default = 1`, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "q",
+              "displayName": "q",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "check_in_date",
+              "displayName": "check_in_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "check_out_date",
+              "displayName": "check_out_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "adults",
+              "displayName": "adults",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        -848,
+        256
+      ],
+      "id": "91d0a5e9-18d3-4e26-962e-c8589c78b8b0",
+      "name": "Hotels_search"
+    },
+    {
+      "parameters": {
+        "description": "Use esta ferramenta para pesquisar atrações turísticas, pontos de interesse, restaurantes e ler avaliações detalhadas de viajantes no Tripadvisor. É a ferramenta principal para planejar roteiros, descobrir 'o que fazer' em um destino e verificar a popularidade de locais. Input principal: O nome da cidade ou ponto turístico no parâmetro 'q'. Use sempre que o usuário pedir recomendações de lazer ou quiser saber a opinião de outros viajantes.",
+        "workflowId": {
+          "__rl": true,
+          "value": "039vyaJARsbpWzTA",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/039vyaJARsbpWzTA",
+          "cachedResultName": "DripAdvisor"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "q": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('q', `Required\nO termo de busca para o Tripadvisor. Deve conter obrigatoriamente o nome da cidade, um ponto turístico específico ou o nome de uma atração. Exemplos: 'Paris', 'Cristo Redentor', 'Museu do Louvre'. Não inclua datas ou número de pessoas neste campo.`, 'string') }}",
+            "ssrc": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('ssrc', `Optional\nThis parameter specifies the search filter you want to use for the Tripadvisor search.\nAvailable options:\na - All Results\nr - Restaurants\nA - Things to Do\nh - Hotels\ng - Destinations\nv - Vacation Rentals\nf - Forums\n\nNOTE: Tripadvisor has discontinued support for Vacation Rentals. As a result, using ssrc=v may return incomplete results or no results at all.`, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "q",
+              "displayName": "q",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "ssrc",
+              "displayName": "ssrc",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        -720,
+        256
+      ],
+      "id": "7d9775df-15e8-4d1a-900d-e8ce1d56c329",
+      "name": "Tripadvisor_search"
     }
   ],
   "pinData": {},
@@ -237,11 +315,6 @@
             "index": 0
           }
         ]
-      ]
-    },
-    "AI Agent": {
-      "main": [
-        []
       ]
     },
     "Structured Output Parser": {
@@ -266,45 +339,45 @@
         ]
       ]
     },
-    "Google Tripadvisor_search": {
-      "ai_tool": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "ai_tool",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Google Hotels_search": {
-      "ai_tool": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "ai_tool",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Google Flights_search": {
-      "ai_tool": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "ai_tool",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Webhook": {
       "main": [
         [
           {
             "node": "AI Agent",
             "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Flights_search": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hotels_search": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tripadvisor_search": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
             "index": 0
           }
         ]
@@ -316,11 +389,11 @@
     "executionOrder": "v1",
     "availableInMCP": false
   },
-  "versionId": "1fe197f4-972f-4a0f-b920-a7f1ce37e6f9",
+  "versionId": "21de9af5-8a2c-4559-86a3-da0559f5ee55",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "edc4a4812a5e5b087f04d30477d7da717fc4ce831ba8a367e362999b444580ee"
+    "instanceId": "22ea323b6c85fbb2de3a8dedaefae6ec8edb82e9c1e169fef139445834eee221"
   },
-  "id": "3x0mp1Tgz9gvpvv86AO2F",
+  "id": "4-Mxzy4OwZfVgd3V1ZeDD",
   "tags": []
 }
