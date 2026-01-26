@@ -4,7 +4,7 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "=Input do usuário:  {{ $json.chatInput }},\nToken de acesso do Amadeus: {{ $json.client_id }}",
+        "text": "={{ $json.body.chatInput }}",
         "hasOutputParser": true,
         "options": {
           "systemMessage": "=# ROLE\nVocê é um Agente de Viagens experiente, entusiasmado e extremamente proativo.\nVocê está conversando com Usuário, em português (pt-BR), trate ele como um amigo, cliente VIP. Foque em usar a API de avião como meio de Transporte, mas se o destino for menor que 500Km deixe em aberto para o usuário. \nSeu objetivo é definido pelo cliente, faça um planejamento e a cada passo concluído, olhe o resultado e pense \"O que eu tenho agora?\".\n\n# GUIDELINES (Diretrizes de Comportamento)\n1. **Naturalidade Extrema:**\n   - NUNCA use termos como: \"banco de dados\", \"memória\", \"histórico\", \"json\", \"API\", \"sistema\" ou \"variáveis\".\n   - NUNCA justifique como você sabe algo (ex: \"Vi no seu perfil que...\", \"Baseado no que você disse antes...\", \"Pela sua memória...\").\n\n2. **Gestão de Informação Ausente:**\n   - Se faltar um dado (como datas), pergunte casualmente. Não diga \"dado não encontrado\".\n   - Pergunte de forma fluida: \"Para quando você está planejando essa ida?\" em vez de \"Informe a data de partida\".\n   \n3. **Passo à passo:**\n   - Seu Estado Inicial sempre será vazio ou parcial (Sstart).\n   - E a cada passo mais perto do seu objetivo, incremente o Sgol(Meta definida pelo usuário - em relação a viagens).\n \n4. ** Critério de Parada (Distance = 0):**\n   - Quando tiver todos os dados consolidados (voos, hotéis e atrações), escreva o roteiro final detalhado no campo user_message e defina distance_to_goal como 0. E Informe ao usuário que o objetivo foi concluído.\n\n# TOOLS & PROCESS\n## Pesquisas (TripAdvisor, Hotels, Flights)\n- Use estas ferramentas para buscar dados reais.\n- Não peça permissão. Se o usuário pediu uma viagem, ele quer que você pesquise.\n- Apresente os resultados como recomendações pessoais: \"Encontrei um voo ótimo...\"\n- Se o usuário não especificar o ano, use 2026.\n- Use ambas as Apis de voos, mas priorize os resultados da Amadeus\n\n**INSTRUÇÃO DE RESPOSTA:**\nAnalise a última frase do usuário.\n- Se precisar de mais informações do usuário, user_message deve ser a pergunta.\n- Faça as perguntas necessárias (datas, orçamento) para prosseguir.\n- Responda APENAS com JSON.",
@@ -14,53 +14,25 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
       "position": [
-        -928,
-        -64
+        1000,
+        304
       ],
-      "id": "286b2b44-90e0-4e4c-8aa4-1f9109597dc1",
+      "id": "5071bbb8-c291-494b-8312-5e584dd7f6c9",
       "name": "AI Agent"
     },
     {
-      "parameters": {},
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.body.sessionId }}"
+      },
       "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
       "typeVersion": 1.3,
       "position": [
-        -1168,
-        160
+        880,
+        528
       ],
-      "id": "2bc83992-a235-47c3-bc2f-26d6a2e8e449",
+      "id": "8403d85f-22b0-4843-a15b-67b05b5942c2",
       "name": "Simple Memory1"
-    },
-    {
-      "parameters": {
-        "options": {
-          "responseMode": "responseNodes"
-        }
-      },
-      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
-      "typeVersion": 1.4,
-      "position": [
-        -1408,
-        -64
-      ],
-      "id": "95d3add5-4644-478e-b7ca-7bb1d35b0155",
-      "name": "When chat message received",
-      "webhookId": "c686848c-b36e-4c28-abea-074f4f05a592",
-      "alwaysOutputData": true
-    },
-    {
-      "parameters": {
-        "message": "={{ $json.output.user_message }}",
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.chat",
-      "typeVersion": 1,
-      "position": [
-        -336,
-        -64
-      ],
-      "id": "7f84c5a2-55cd-4cf5-a700-edc69483e23f",
-      "name": "Respond to Chat"
     },
     {
       "parameters": {
@@ -69,10 +41,10 @@
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.3,
       "position": [
-        -576,
-        160
+        1392,
+        528
       ],
-      "id": "5df58825-71e1-4055-b283-920190b113da",
+      "id": "64e38242-c024-4cbe-8acf-b75924f37c17",
       "name": "Structured Output Parser"
     },
     {
@@ -89,15 +61,15 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.3,
       "position": [
-        -1280,
-        160
+        752,
+        528
       ],
-      "id": "5c1404a8-ffb6-45a2-92e1-04f3b8c803bb",
+      "id": "70ed67f3-91d6-4489-ad52-578e9d146ada",
       "name": "OpenAI Chat Model",
       "credentials": {
         "openAiApi": {
-          "id": "tkKS5g4EKLMRBwWj",
-          "name": "OpenAi account"
+          "id": "luHZymUKGIodvn2F",
+          "name": "jorge account"
         }
       }
     },
@@ -127,10 +99,10 @@
       "type": "n8n-nodes-base.httpRequestTool",
       "typeVersion": 4.3,
       "position": [
-        -896,
-        160
+        1008,
+        528
       ],
-      "id": "bcdc745d-cfb2-40f4-9949-227a89081337",
+      "id": "37a998e3-f380-4488-bb70-87ee897917a6",
       "name": "Google Tripadvisor_search"
     },
     {
@@ -179,10 +151,10 @@
       "type": "n8n-nodes-base.httpRequestTool",
       "typeVersion": 4.3,
       "position": [
-        -240,
-        240
+        1264,
+        528
       ],
-      "id": "00bfcec2-932a-4736-a591-cb3af8aa347b",
+      "id": "e5a96e0e-e2c1-4980-a90f-9809673f26f2",
       "name": "Google Flights_search"
     },
     {
@@ -227,157 +199,31 @@
       "type": "n8n-nodes-base.httpRequestTool",
       "typeVersion": 4.3,
       "position": [
-        -1008,
-        160
+        1136,
+        528
       ],
-      "id": "f6271a06-1d43-49d0-baac-41b016a14b1b",
+      "id": "7aa2c0d1-2160-4048-8b0e-6f7989ec4ba5",
       "name": "Google Hotels_search"
     },
     {
       "parameters": {
-        "url": "https://test.api.amadeus.com/v2/shopping/flight-offers",
-        "sendQuery": true,
-        "queryParameters": {
-          "parameters": [
-            {
-              "name": "originLocationCode",
-              "value": "={{$node[\"AI Agent1\"].json.output.originCityIATA}}"
-            },
-            {
-              "name": "destinationLocationCode",
-              "value": "={{$node[\"AI Agent1\"].json.output.destinationCityIATA}}"
-            },
-            {
-              "name": "departureDate",
-              "value": "={{$node[\"AI Agent1\"].json.output.departureDate}}"
-            },
-            {
-              "name": "returnDate",
-              "value": "={{$node[\"AI Agent1\"].json.output.returnDate}}"
-            },
-            {
-              "name": "adults",
-              "value": "={{$node[\"AI Agent1\"].json.output.adults}}"
-            },
-            {
-              "name": "currencyCode",
-              "value": "BRL"
-            },
-            {
-              "name": "max",
-              "value": "5"
-            }
-          ]
-        },
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "Authorization",
-              "value": "=Bearer {{$node[\"Amadeus OAuth Token1\"].json[\"access_token\"]}}"
-            }
-          ]
-        },
-        "options": {}
+        "httpMethod": "POST",
+        "path": "chat-objective",
+        "responseMode": "lastNode",
+        "options": {
+          "allowedOrigins": "*",
+          "rawBody": false
+        }
       },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
       "position": [
-        80,
-        -128
+        528,
+        304
       ],
-      "id": "6d4ed884-590b-4e9f-b04e-0feb88f0f7bd",
-      "name": "Buscar VOOS1"
-    },
-    {
-      "parameters": {
-        "url": "https://test.api.amadeus.com/v2/shopping/flight-offers",
-        "sendQuery": true,
-        "queryParameters": {
-          "parameters": [
-            {
-              "name": "originLocationCode",
-              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', `Aeroporto origem (IATA)`, 'string') }}"
-            },
-            {
-              "name": "destinationLocationCode",
-              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters1_Value', `Aeroporto destino (IATA)`, 'string') }}"
-            },
-            {
-              "name": "departureDate",
-              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters2_Value', `Ida (YYYY-MM-DD)`, 'string') }}"
-            },
-            {
-              "name": "returnDate",
-              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters3_Value', `Volta (YYYY-MM-DD)`, 'string') }}"
-            },
-            {
-              "name": "adults",
-              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters4_Value', `Default: 1`, 'string') }}"
-            },
-            {
-              "name": "currency",
-              "value": "BRL"
-            },
-            {
-              "name": "max",
-              "value": "6"
-            }
-          ]
-        },
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "Authorization",
-              "value": "=Bearer {{ $('Amadeus OAuth Token').item.json.client_id }}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequestTool",
-      "typeVersion": 4.3,
-      "position": [
-        -736,
-        160
-      ],
-      "id": "004736cc-b450-4ab5-89ce-9d83a7cf58e5",
-      "name": "Amadeus Flights_search"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "https://test.api.amadeus.com/v1/security/oauth2/token",
-        "sendBody": true,
-        "contentType": "form-urlencoded",
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "grant_type",
-              "value": "client_credentials"
-            },
-            {
-              "name": "client_id",
-              "value": "MPGjLikELueHrDGVkOscTWVsaiqh91s3"
-            },
-            {
-              "name": "client_secret",
-              "value": "ASUF9TFhBAxPUPbP"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        -1136,
-        -256
-      ],
-      "id": "c7d42ca6-2854-487d-bd60-c0a0c0c3fa2b",
-      "name": "Amadeus OAuth Token",
-      "alwaysOutputData": true
+      "id": "6d35edc1-c96b-4796-a31a-3dadcec8563e",
+      "name": "Webhook",
+      "webhookId": "b370cdcf-53d2-48a7-b3da-718c7543dc89"
     }
   ],
   "pinData": {},
@@ -393,42 +239,9 @@
         ]
       ]
     },
-    "When chat message received": {
-      "main": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Amadeus OAuth Token",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "AI Agent": {
       "main": [
-        [
-          {
-            "node": "Respond to Chat",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Respond to Chat": {
-      "main": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        []
       ]
     },
     "Structured Output Parser": {
@@ -464,11 +277,6 @@
         ]
       ]
     },
-    "Google Flights_search": {
-      "ai_tool": [
-        []
-      ]
-    },
     "Google Hotels_search": {
       "ai_tool": [
         [
@@ -480,7 +288,7 @@
         ]
       ]
     },
-    "Amadeus Flights_search": {
+    "Google Flights_search": {
       "ai_tool": [
         [
           {
@@ -491,9 +299,15 @@
         ]
       ]
     },
-    "Amadeus OAuth Token": {
+    "Webhook": {
       "main": [
-        []
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     }
   },
@@ -502,11 +316,11 @@
     "executionOrder": "v1",
     "availableInMCP": false
   },
-  "versionId": "ae2311aa-f32f-4d7f-901d-26e614189606",
+  "versionId": "1fe197f4-972f-4a0f-b920-a7f1ce37e6f9",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "22ea323b6c85fbb2de3a8dedaefae6ec8edb82e9c1e169fef139445834eee221"
+    "instanceId": "edc4a4812a5e5b087f04d30477d7da717fc4ce831ba8a367e362999b444580ee"
   },
-  "id": "4-Mxzy4OwZfVgd3V1ZeDD",
+  "id": "3x0mp1Tgz9gvpvv86AO2F",
   "tags": []
 }
