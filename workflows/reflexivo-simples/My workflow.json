@@ -3,22 +3,8 @@
   "nodes": [
     {
       "parameters": {
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
-      "typeVersion": 1.4,
-      "position": [
-        -496,
-        0
-      ],
-      "id": "5cf0bd1a-ce09-4a3b-bf88-2a72926db59e",
-      "name": "When chat message received",
-      "webhookId": "d3f1dcf3-3350-4c48-a09f-a8a9a60e8512"
-    },
-    {
-      "parameters": {
         "promptType": "define",
-        "text": "={{ JSON.stringify({\n  userMessage: $node[\"When chat message received\"].json.chatInput,\n  trip: $node[\"AI Agent1\"].json.output,\n  flights: $node[\"Simplify Flights\"].json.flightOffers,\n  hotels: $node[\"Simplify Hotels\"].json.hotelOffers\n}, null, 2) }}\n",
+        "text": "={{ JSON.stringify({\n  userMessage: $('Webhook').item.json.body.chatInput,\n  trip: $node[\"AI Agent1\"].json.output,\n  flights: $node[\"Simplify Flights\"].json.flightOffers,\n  hotels: $node[\"Simplify Hotels\"].json.hotelOffers\n}, null, 2) }}\n",
         "options": {
           "systemMessage": "Você é o Agente Reflexivo Simples (Condition → Action) do projeto “Assistente de Planejamento de Viagens”.\n\nVocê NÃO mantém estado.\nVocê NÃO possui memória.\nVocê responde apenas com base nos dados fornecidos nesta mensagem.\n\nVocê receberá um JSON com:\n- trip: informações da viagem (origem, destino, datas, passageiros)\n- flights: lista (até 5) de opções de voos simplificadas\n- hotels: lista (até 5) de opções de hotéis simplificadas (com preço/datas quando disponível)\n- userMessage: mensagem original do usuário\n\nTarefas:\n1) Confirmar o resumo da viagem (origem → destino, datas, passageiros).\n2) Selecionar e apresentar as 3 melhores opções de voo (priorize menor preço; em empate, menos paradas).\n   - Para cada voo, mostre: companhia, preço total e moeda, horário de ida/volta (se houver), duração e paradas.\n3) Selecionar e apresentar até 3 hotéis (priorize menor preço total quando existir).\n   - Para cada hotel, mostre: nome, preço total (se existir), datas (se existirem), e endereço/bairro se disponível.\n4) Listar 3 pontos turísticos famosos da cidade de destino (sem inventar preços).\n5) Se algum dado essencial estiver faltando (ex.: destino, datas ou voos/hotéis vazios), peça somente o que falta ou explique que não há resultados.\n\nRegras:\n- NÃO invente preços, horários, companhias, hotéis ou detalhes que não estejam no JSON.\n- Se flights estiver vazio, diga que não encontrou voos e sugira ajustar aeroporto/datas.\n- Se hotels estiver vazio, diga que não encontrou hotéis e sugira tentar outras datas ou aumentar a busca.\n- Seja objetivo e use bullets.\n\nFormato de saída (texto):\n✅ Resumo da viagem\n✈️ Voos (3 opções)\n🏨 Hotéis (até 3 opções)\n📍 3 pontos turísticos\n"
         }
@@ -26,16 +12,16 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
       "position": [
-        1200,
-        0
+        1760,
+        -32
       ],
-      "id": "0e2d5969-9d4b-403a-9e0e-6dfd5f94db3e",
+      "id": "1b2aa7d3-7794-492d-ae92-72edd3261b46",
       "name": "AI Agent"
     },
     {
       "parameters": {
         "promptType": "define",
-        "text": "={{$json.chatInput}}\n",
+        "text": "=\n{{ $json.body.chatInput }}",
         "hasOutputParser": true,
         "options": {
           "systemMessage": "Você é um Agente LLM Reflexivo Simples (Condition → Action).\nVocê NÃO mantém estado, NÃO possui memória e NÃO planeja em múltiplos passos.\n\nTarefa:\n- Extrair: cidade de origem e IATA dessa cidade, cidade de destino e IATA dessa cidade, data de ida, data de volta, adultos e crianças.\n- Se faltar ano, usar 2026.\n- Se faltar cidade de origem, usar Recife.\n- Se faltar passageiros, usar adults=1 e children=0.\n- Retornar APENAS JSON válido.\n\nFormato obrigatório de saída:\n{\n  \"originCity\": \"string\",\n  \"originCityIATA\": \"string\",\n  \"destinationCity\": \"string\",\n  \"destinationCityIATA\": \"string\",\n  \"departureDate\": \"YYYY-MM-DD\",\n  \"returnDate\": \"YYYY-MM-DD\",\n  \"adults\": \"number\",\n  \"children\": \"number\"\n}\n\nResponda APENAS com JSON válido.\nNÃO use blocos de código (não use ```).\nNÃO coloque texto antes ou depois do JSON.\nNunca inclua quebras de linha nos valores. Remova espaços extras no início/fim.\n"
@@ -44,10 +30,10 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
       "position": [
-        -208,
-        0
+        352,
+        -32
       ],
-      "id": "033e3b37-f4f6-4a43-96a6-f654358465d5",
+      "id": "84839741-1414-48bc-84c2-93b6d5c4a700",
       "name": "AI Agent1",
       "notesInFlow": false
     },
@@ -78,10 +64,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        144,
-        0
+        704,
+        -32
       ],
-      "id": "82647004-cc6a-4f4e-819a-9f45926ca79c",
+      "id": "64585a5f-69cd-4e7d-815d-07ffcb77070a",
       "name": "Amadeus OAuth Token"
     },
     {
@@ -91,10 +77,10 @@
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.3,
       "position": [
-        -48,
-        208
+        512,
+        176
       ],
-      "id": "42d93b11-5f58-40b5-a601-ee5f915bdc53",
+      "id": "187b93c3-d2b4-4022-8cb0-96aaf0bb9fb9",
       "name": "Structured Output Parser"
     },
     {
@@ -147,10 +133,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        352,
-        0
+        912,
+        -32
       ],
-      "id": "3ee4fcbc-bdae-47cc-a3d8-68c081b09ab0",
+      "id": "49bbfa5f-29c6-4665-a1bc-30cda2c0be58",
       "name": "Buscar VOOS1"
     },
     {
@@ -207,10 +193,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        768,
-        0
+        1328,
+        -32
       ],
-      "id": "d892b61d-1010-4d57-8e9c-976bb5cd1d60",
+      "id": "211c9de8-e5c3-4d56-9950-52a8acb53608",
       "name": "Buscar Hotéis"
     },
     {
@@ -220,10 +206,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        944,
-        0
+        1504,
+        -32
       ],
-      "id": "06a20a45-f3c2-4e98-9db7-7aecc1b6f1ad",
+      "id": "f7c163c1-2e8a-4a7f-92a4-f15bd883c59a",
       "name": "Simplify Hotels"
     },
     {
@@ -233,69 +219,87 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        560,
-        0
+        1120,
+        -32
       ],
-      "id": "6d920217-993d-42f7-9099-5bb18f82693d",
+      "id": "0b5a9eb4-6921-4efb-b262-e7c68c2b0538",
       "name": "Simplify Flights"
     },
     {
       "parameters": {
+        "httpMethod": "POST",
+        "path": "chat-simple",
+        "responseMode": "lastNode",
+        "options": {
+          "allowedOrigins": "*",
+          "rawBody": false
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -80,
+        -32
+      ],
+      "id": "7aad1a1a-a626-46e3-95ad-5427cecfa851",
+      "name": "Webhook",
+      "webhookId": "b370cdcf-53d2-48a7-b3da-718c7543dc89"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
         "options": {}
       },
-      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
-      "typeVersion": 1,
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
       "position": [
-        -352,
-        208
+        256,
+        176
       ],
-      "id": "4f0a2e52-846b-4323-b045-dd130124e0b6",
-      "name": "Google Gemini Chat Model",
+      "id": "b22d555d-db00-4602-9991-a30c891b00db",
+      "name": "OpenAI Chat Model",
       "credentials": {
-        "googlePalmApi": {
-          "id": "RfpwUsGUL9n2axUf",
-          "name": "yorkis.gamer32"
+        "openAiApi": {
+          "id": "luHZymUKGIodvn2F",
+          "name": "jorge account"
         }
       }
     },
     {
       "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
         "options": {}
       },
-      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
-      "typeVersion": 1,
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
       "position": [
-        1136,
-        192
+        1680,
+        160
       ],
-      "id": "a31b2f34-8ed3-44e4-80f1-544e8a36331b",
-      "name": "Google Gemini Chat Model1",
+      "id": "91e9c452-3ded-45c4-a34f-11878a7e7b84",
+      "name": "OpenAI Chat Model1",
       "credentials": {
-        "googlePalmApi": {
-          "id": "RfpwUsGUL9n2axUf",
-          "name": "yorkis.gamer32"
+        "openAiApi": {
+          "id": "luHZymUKGIodvn2F",
+          "name": "jorge account"
         }
       }
     }
   ],
   "pinData": {},
   "connections": {
-    "When chat message received": {
-      "main": [
-        [
-          {
-            "node": "AI Agent1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "AI Agent": {
-      "main": [
-        []
-      ]
-    },
     "AI Agent1": {
       "main": [
         [
@@ -373,7 +377,18 @@
         ]
       ]
     },
-    "Google Gemini Chat Model": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
       "ai_languageModel": [
         [
           {
@@ -384,7 +399,7 @@
         ]
       ]
     },
-    "Google Gemini Chat Model1": {
+    "OpenAI Chat Model1": {
       "ai_languageModel": [
         [
           {
@@ -401,11 +416,11 @@
     "executionOrder": "v1",
     "availableInMCP": false
   },
-  "versionId": "b259a306-3ea8-4ae7-8ba3-eb4515256e28",
+  "versionId": "9dd61206-d1ca-4fc0-9fb9-68735187b86d",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "22ea323b6c85fbb2de3a8dedaefae6ec8edb82e9c1e169fef139445834eee221"
+    "instanceId": "edc4a4812a5e5b087f04d30477d7da717fc4ce831ba8a367e362999b444580ee"
   },
-  "id": "60A_Ve-oXDnJxMixD2gXI",
+  "id": "xQplMwbEXXyVFX2MVF-f_",
   "tags": []
 }
