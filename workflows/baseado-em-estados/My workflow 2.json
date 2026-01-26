@@ -13,10 +13,10 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
       "position": [
-        3984,
-        1248
+        -384,
+        -48
       ],
-      "id": "36fc3b18-5ed1-4d78-bbf1-7b4ff2bc83b7",
+      "id": "7fce8a0e-b49b-4869-9f0c-d73d3bdeb120",
       "name": "AI Agent1",
       "notesInFlow": false
     },
@@ -47,10 +47,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        4336,
-        1248
+        -32,
+        -48
       ],
-      "id": "292fdbee-b455-4cab-b140-7860eab7fd8a",
+      "id": "b6238fd3-044b-499d-ac1e-4d113d44bd77",
       "name": "Amadeus OAuth Token"
     },
     {
@@ -60,10 +60,10 @@
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.3,
       "position": [
-        4128,
-        1472
+        -248,
+        176
       ],
-      "id": "a8ad0912-3e8d-4cc0-ab6b-de7b2843e111",
+      "id": "88d31e9e-fdbf-4144-b533-1e4812f6ae9f",
       "name": "Structured Output Parser"
     },
     {
@@ -116,10 +116,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        4560,
-        1248
+        192,
+        -48
       ],
-      "id": "0f7f48a5-bcb4-4fa0-85cb-f8629ca0be82",
+      "id": "180bd2e9-d877-452c-9c66-bf7800ede18a",
       "name": "Buscar VOOS1"
     },
     {
@@ -176,10 +176,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        5008,
-        1248
+        640,
+        -48
       ],
-      "id": "2e5c5531-81c0-4d02-b91f-84edd0ea36b7",
+      "id": "373b05e8-7931-40db-8a01-a84f87fd6783",
       "name": "Buscar Hotéis"
     },
     {
@@ -189,10 +189,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        5232,
-        1376
+        864,
+        76
       ],
-      "id": "67cb79fd-03f4-486c-8f75-271005a4f658",
+      "id": "8a6f2336-af58-47dc-8834-3e597a672405",
       "name": "Simplify Hotels"
     },
     {
@@ -202,16 +202,16 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        4784,
-        1248
+        416,
+        -48
       ],
-      "id": "31d09327-41c2-4180-a1da-9504a406d5de",
+      "id": "0af83aae-80c7-42c3-af31-1f5cac58443b",
       "name": "Simplify Flights"
     },
     {
       "parameters": {
         "promptType": "define",
-        "text": "=Solicitação do usuário (Atual):\n{{ $('Respond to Chat').isExecuted && $('Respond to Chat').item.json.chatInput ? $('Respond to Chat').item.json.chatInput : $('When chat message received').item.json.chatInput }}\n\nDados de Hotéis (se houver):\n{{ $('Simplify Hotels').isExecuted ? JSON.stringify($('Simplify Hotels').item.json.hotelOffers) : \"Nenhum hotel buscado ainda\" }}\n\nDados de Voos (se houver):\n{{ $('Simplify Flights').isExecuted ? JSON.stringify($('Simplify Flights').item.json.flightOffers) : \"Nenhum voo buscado ainda\" }}",
+        "text": "=Solicitação do usuário (Atual):\n{{ $json.body.chatInput }}\n\nDados de Hotéis (se houver):\n{{ $('Simplify Hotels').isExecuted ? JSON.stringify($('Simplify Hotels').item.json.hotelOffers) : \"Nenhum hotel buscado ainda\" }}\n\nDados de Voos (se houver):\n{{ $('Simplify Flights').isExecuted ? JSON.stringify($('Simplify Flights').item.json.flightOffers) : \"Nenhum voo buscado ainda\" }}",
         "hasOutputParser": true,
         "options": {
           "systemMessage": "Você é o Supervisor de um fluxo de reserva de viagens. Sua função é analisar a conversa e decidir o próximo passo.\n\nESTADOS DISPONÍVEIS:\n\n    ASK_USER: Se campos obrigatórios (Destino ou Data de Ida) estiverem ausentes.\n\n    SEARCH: Se todos os campos obrigatórios estiverem presentes.\n\n    COMPLETE: Se a memória já contiver os resultados da pesquisa (voos/hotéis).\n\nREGRAS DE EXTRAÇÃO:\n\n    Obrigatórios: destinationCity, departureDate, originCity\n\n    Opcionais (com defaults):\n\n        adults: Se ausente, use 1.\n\n        children: Se ausente, use 0.\n\n        year: Se ausente, use 2026.\n\n    IATA: Sempre tente inferir o código IATA de 3 letras das cidades.\n\nLÓGICA DE DECISÃO:\n\n    Verifique o Histórico: Se as APIs já retornaram dados, sua decision é \"COMPLETE\" e você deve formatar a user_message final.\n\n    Verifique o Prompt: Se o usuário quer viajar mas não disse para onde ou quando, sua decision é \"ASK_USER\" e a user_message deve ser uma pergunta gentil.\n\n    Se houver dados suficientes, decision é \"SEARCH\".\n\nFORMATO DE SAÍDA OBRIGATÓRIO (JSON): Responda APENAS o JSON abaixo, sem blocos de código ou explicações. { \"decision\": \"SEARCH\" | \"ASK_USER\" | \"COMPLETE\", \"missing_info\": [], \"user_message\": \"Sua mensagem aqui\", \"search_params\": { ... } }"
@@ -220,10 +220,10 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
       "position": [
-        3360,
-        944
+        -1016,
+        76
       ],
-      "id": "c24a83f9-e407-4ba3-a6f7-b34139f4b308",
+      "id": "e1a17b1a-e360-48c2-90d3-9350c834ec80",
       "name": "AI Agent"
     },
     {
@@ -233,38 +233,25 @@
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.3,
       "position": [
-        3552,
-        1168
+        -816,
+        300
       ],
-      "id": "2f2abf7e-4a77-4a35-aaa5-c62648d8f4f4",
+      "id": "67b2479c-2f8c-453f-b95e-1beb3bdc2207",
       "name": "Structured Output Parser1"
     },
     {
-      "parameters": {},
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.body.sessionId }}"
+      },
       "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
       "typeVersion": 1.3,
       "position": [
-        3424,
-        1168
+        -944,
+        300
       ],
-      "id": "33b3c118-112a-4ea2-b1fc-e211a66c3742",
+      "id": "b8c5b9fa-abdb-46cb-938a-8ca9fcb499d3",
       "name": "Simple Memory1"
-    },
-    {
-      "parameters": {
-        "options": {
-          "responseMode": "responseNodes"
-        }
-      },
-      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
-      "typeVersion": 1.4,
-      "position": [
-        2848,
-        1168
-      ],
-      "id": "14a48e5c-cea7-4111-949e-35a8ed0376d0",
-      "name": "When chat message received",
-      "webhookId": "c686848c-b36e-4c28-abea-074f4f05a592"
     },
     {
       "parameters": {
@@ -321,65 +308,83 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.4,
       "position": [
-        3760,
-        944
+        -608,
+        -48
       ],
-      "id": "9e2a0555-ea6d-4d3d-a66b-f9432ac91d51",
+      "id": "32a547ec-1ece-4634-8c64-1b2fe10f95fa",
       "name": "Switch"
     },
     {
       "parameters": {
-        "message": "={{ $json.output.user_message }}",
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
         "options": {}
       },
-      "type": "@n8n/n8n-nodes-langchain.chat",
-      "typeVersion": 1,
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
       "position": [
-        4064,
-        928
+        -376,
+        176
       ],
-      "id": "324bc922-71c3-4460-ae2e-625b5acebde4",
-      "name": "Respond to Chat"
-    },
-    {
-      "parameters": {
-        "modelName": "models/gemini-3-flash-preview",
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
-      "typeVersion": 1,
-      "position": [
-        4000,
-        1472
-      ],
-      "id": "8d09e97b-5908-4a97-857b-83ab5f58a3ca",
-      "name": "Google Gemini Chat Model2",
+      "id": "af54ee44-37c9-4c21-8209-0a7801690b1a",
+      "name": "OpenAI Chat Model",
       "credentials": {
-        "googlePalmApi": {
-          "id": "RfpwUsGUL9n2axUf",
-          "name": "yorkis.gamer32"
+        "openAiApi": {
+          "id": "luHZymUKGIodvn2F",
+          "name": "jorge account"
         }
       }
     },
     {
       "parameters": {
-        "modelName": "models/gemini-3-flash-preview",
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
         "options": {}
       },
-      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
-      "typeVersion": 1,
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
       "position": [
-        3296,
-        1168
+        -1072,
+        300
       ],
-      "id": "f4d3e4e5-e8e8-4991-b53a-bab3117a6745",
-      "name": "Google Gemini Chat Model",
+      "id": "72ca1e9c-d99d-4bb5-86d0-9fea706f98f1",
+      "name": "OpenAI Chat Model1",
       "credentials": {
-        "googlePalmApi": {
-          "id": "RfpwUsGUL9n2axUf",
-          "name": "yorkis.gamer32"
+        "openAiApi": {
+          "id": "luHZymUKGIodvn2F",
+          "name": "jorge account"
         }
       }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "chat-state",
+        "responseMode": "lastNode",
+        "options": {
+          "allowedOrigins": "*",
+          "rawBody": false
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1296,
+        76
+      ],
+      "id": "a80f299e-9010-4864-8405-670d86966737",
+      "name": "Webhook",
+      "webhookId": "b370cdcf-53d2-48a7-b3da-718c7543dc89"
     }
   ],
   "pinData": {},
@@ -494,26 +499,9 @@
         ]
       ]
     },
-    "When chat message received": {
-      "main": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Switch": {
       "main": [
-        [
-          {
-            "node": "Respond to Chat",
-            "type": "main",
-            "index": 0
-          }
-        ],
+        [],
         [
           {
             "node": "AI Agent1",
@@ -523,34 +511,34 @@
         ]
       ]
     },
-    "Respond to Chat": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
       "main": [
         [
           {
             "node": "AI Agent",
             "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Google Gemini Chat Model2": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "AI Agent1",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Google Gemini Chat Model": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "ai_languageModel",
             "index": 0
           }
         ]
@@ -562,11 +550,11 @@
     "executionOrder": "v1",
     "availableInMCP": false
   },
-  "versionId": "5c791b78-b1cb-4cfa-a146-a101034f32cc",
+  "versionId": "84dd9391-0133-4e84-973d-d88adbeb6935",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "22ea323b6c85fbb2de3a8dedaefae6ec8edb82e9c1e169fef139445834eee221"
+    "instanceId": "edc4a4812a5e5b087f04d30477d7da717fc4ce831ba8a367e362999b444580ee"
   },
-  "id": "60A_Ve-oXDnJxMixD2gXI",
+  "id": "pn0d6WgB1Rmf4JoAKvV6I",
   "tags": []
 }

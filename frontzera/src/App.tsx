@@ -164,7 +164,43 @@ function App() {
       }
 
       const data = await response.json()
-      const aiResponse = data.output || data.message || 'Desculpe, não consegui processar sua mensagem.'
+      
+      // Handle structured response (for state agent)
+      let aiResponse: string
+      
+      // Log the response for debugging
+      console.log('API Response:', data)
+      
+      // Check if output is an object with user_message field
+      if (typeof data.output === 'object' && data.output !== null && 'user_message' in data.output) {
+        aiResponse = data.output.user_message
+      } else if (typeof data.output === 'string' && data.output.includes('user_message:')) {
+        // Parse structured string response
+        const lines = data.output.split('\n')
+        const userMessageLine = lines.find((line: string) => line.startsWith('user_message:'))
+        aiResponse = userMessageLine 
+          ? userMessageLine.replace('user_message:', '').trim() 
+          : data.output
+      } else if (typeof data.output === 'string') {
+        // Handle normal string response
+        aiResponse = data.output
+      } else if (typeof data.message === 'string') {
+        // Fallback to message field
+        aiResponse = data.message
+      } else if (typeof data === 'string') {
+        // Data itself is a string
+        aiResponse = data
+      } else {
+        // If we still have an object, try to stringify it or use a default message
+        console.error('Unexpected response format:', data)
+        aiResponse = 'Desculpe, não consegui processar sua mensagem.'
+      }
+
+      // Ensure aiResponse is always a string
+      if (typeof aiResponse !== 'string') {
+        console.error('aiResponse is not a string:', aiResponse)
+        aiResponse = JSON.stringify(aiResponse)
+      }
 
       setMessages(prev => [...prev, { sender: 'ai', text: aiResponse }])
     } catch (err) {
