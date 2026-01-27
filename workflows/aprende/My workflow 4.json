@@ -14,7 +14,7 @@
         "workflowInputs": {
           "mappingMode": "defineBelow",
           "value": {
-            "adults": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('adults', ``, 'number') }}",
+            "adults": "=1",
             "originLocationCode": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('originLocationCode', ``, 'string') }}",
             "destinationLocationCode": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('destinationLocationCode', ``, 'string') }}",
             "departureDate": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('departureDate', `should be in the format of YYYY-MM-DD. E.g. 2023-01-31.`, 'string') }}",
@@ -559,12 +559,12 @@
       ]
     }
   },
-  "active": false,
+  "active": true,
   "settings": {
     "executionOrder": "v1",
     "availableInMCP": false
   },
-  "versionId": "22f8379e-9d40-44af-acdb-f77eb557c004",
+  "versionId": "b57a233b-52e6-457d-94dc-cbaceb305523",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "22ea323b6c85fbb2de3a8dedaefae6ec8edb82e9c1e169fef139445834eee221"

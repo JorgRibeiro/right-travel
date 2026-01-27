@@ -1,5 +1,5 @@
 {
-  "name": "My workflow 2",
+  "name": "objetos",
   "nodes": [
     {
       "parameters": {
@@ -14,10 +14,10 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
       "position": [
-        -960,
-        64
+        464,
+        0
       ],
-      "id": "350968a9-4b16-4b19-a3be-5de6ef0bb863",
+      "id": "eb001c5c-7eb2-475a-92ac-a31d8ef68fcb",
       "name": "AI Agent"
     },
     {
@@ -28,10 +28,10 @@
       "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
       "typeVersion": 1.3,
       "position": [
-        -1072,
-        256
+        352,
+        192
       ],
-      "id": "2a14cfec-4b5e-4741-acfb-98b385da1ccb",
+      "id": "f2a4894e-0926-4975-a3fe-6628cb8c2cec",
       "name": "Simple Memory1"
     },
     {
@@ -41,10 +41,10 @@
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.3,
       "position": [
-        -432,
-        240
+        992,
+        176
       ],
-      "id": "15d86cab-eb3f-496a-800b-6bb8de85614b",
+      "id": "00a8ab29-1fbd-4ce3-800e-a11a444e0dde",
       "name": "Structured Output Parser"
     },
     {
@@ -60,10 +60,10 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.3,
       "position": [
-        -1216,
-        240
+        208,
+        176
       ],
-      "id": "f280c9b0-0562-4eff-b21e-f7b88900ab05",
+      "id": "e9dd421e-8434-4f33-b464-d35fa63c64a0",
       "name": "OpenAI Chat Model",
       "credentials": {
         "openAiApi": {
@@ -85,10 +85,10 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
       "position": [
-        -1424,
-        64
+        0,
+        0
       ],
-      "id": "59961965-073a-4c70-a6d5-5be0b2355154",
+      "id": "f8b52b1b-83f0-4aea-b3b9-fce74405e9bd",
       "name": "Webhook",
       "webhookId": "b370cdcf-53d2-48a7-b3da-718c7543dc89"
     },
@@ -105,7 +105,7 @@
         "workflowInputs": {
           "mappingMode": "defineBelow",
           "value": {
-            "adults": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('adults', ``, 'number') }}",
+            "adults": "=1",
             "originLocationCode": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('originLocationCode', ``, 'string') }}",
             "destinationLocationCode": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('destinationLocationCode', ``, 'string') }}",
             "departureDate": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('departureDate', `should be in the format of YYYY-MM-DD. E.g. 2023-01-31.`, 'string') }}",
@@ -171,10 +171,10 @@
       "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
       "typeVersion": 2.2,
       "position": [
-        -960,
-        256
+        464,
+        192
       ],
-      "id": "61576edb-d609-48e4-a5d1-0dfc7fbafc1b",
+      "id": "7fa4a6e0-acd2-429d-9e0c-d4deb41b8541",
       "name": "Flights_search"
     },
     {
@@ -245,10 +245,10 @@
       "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
       "typeVersion": 2.2,
       "position": [
-        -848,
-        256
+        576,
+        192
       ],
-      "id": "91d0a5e9-18d3-4e26-962e-c8589c78b8b0",
+      "id": "51d09326-42c4-426b-adf0-0f0c9117bf47",
       "name": "Hotels_search"
     },
     {
@@ -297,10 +297,10 @@
       "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
       "typeVersion": 2.2,
       "position": [
-        -720,
-        256
+        704,
+        192
       ],
-      "id": "7d9775df-15e8-4d1a-900d-e8ce1d56c329",
+      "id": "10b60dff-0cc8-458a-93cf-520fc8b12f1e",
       "name": "Tripadvisor_search"
     }
   ],
@@ -384,16 +384,15 @@
       ]
     }
   },
-  "active": false,
+  "active": true,
   "settings": {
     "executionOrder": "v1",
     "availableInMCP": false
   },
-  "versionId": "21de9af5-8a2c-4559-86a3-da0559f5ee55",
+  "versionId": "636b40f9-c489-40ec-a8de-b0edeebee567",
   "meta": {
-    "templateCredsSetupCompleted": true,
     "instanceId": "22ea323b6c85fbb2de3a8dedaefae6ec8edb82e9c1e169fef139445834eee221"
   },
-  "id": "4-Mxzy4OwZfVgd3V1ZeDD",
+  "id": "Qb7O-C23gzpX5GeBG83qO",
   "tags": []
 }

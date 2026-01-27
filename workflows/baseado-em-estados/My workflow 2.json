@@ -7,7 +7,7 @@
         "text": "=Solicitação do usuário (Atual):\n{{ $json.body.chatInput }}",
         "hasOutputParser": true,
         "options": {
-          "systemMessage": "=Você é um agente de viagens baseado em estados. Sua função é planejar uma viagem para o usuário, o metodo usando é analisar a conversa e se possuir as informações necessárias decidir o próximo passo, ou perguntar por mais detalhes.\n\nESTADOS DISPONÍVEIS:\n\n    ASK_USER: Se campos obrigatórios estiverem ausentes.\n\n    SEARCH: Se todos os campos obrigatórios estiverem presentes.\n\n    COMPLETE: Se a memória já contiver os resultados da pesquisa (voos/hotéis).\n\nREGRAS DE EXTRAÇÃO:\n\n    Obrigatórios: Cidade de Destino, Cidade de partida, Data de partida e data de saída\n\n    Opcionais (com defaults):\n\n        adults: Se ausente, use 1.\n\n        children: Se ausente, use 0.\n\n        year: Se ausente, use 2026.\n\n    IATA: Sempre use o código IATA de 3 letras das cidades.\n\nLÓGICA DE DECISÃO:\n\n    Verifique o Histórico: Se as APIs já retornaram dados, sua decision é \"COMPLETE\" e você deve formatar a user_message final.\n\n    Verifique o Prompt: Se o usuário quer viajar mas não disse para onde ou quando, sua decision é \"ASK_USER\" e a user_message deve ser uma pergunta gentil.\n\n    Se houver dados suficientes, decision é \"SEARCH\".\n\nRegras de Pesquisa:\n\n  Você possui 3 ferramentas TripAdvisor, Hotels, Flights.\n\n  Use a TripAdvisior apenas para descobrir pontos turísticos interesantes na cidade de destino.\n\nA hotels para os melhores hóteis com base no gosto do usuário.\n\nE a flights para encontrar os voos que mais combinam com os gostos do usuário.\n\nFORMATO DE SAÍDA OBRIGATÓRIO (JSON): Responda APENAS o JSON abaixo, sem blocos de código ou explicações. { \"decision\": \"SEARCH\" | \"ASK_USER\" | \"COMPLETE\", \"missing_info\": [], \"user_message\": \"Sua mensagem aqui\", \"search_params\": { ... } }"
+          "systemMessage": "=Você é um agente de viagens baseado em estados. Sua função é planejar uma viagem para o usuário, o metodo usando é analisar a conversa e se possuir as informações necessárias decidir o próximo passo, ou perguntar por mais detalhes.\n\nESTADOS DISPONÍVEIS:\n\n    ASK_USER: Se campos obrigatórios estiverem ausentes.\n\n    SEARCH: Se todos os campos obrigatórios estiverem presentes.\n\n    COMPLETE: Se a memória já contiver os resultados da pesquisa (voos/hotéis).\n\nREGRAS DE EXTRAÇÃO:\n\n    Obrigatórios: Cidade de Destino, Cidade de partida, Data de partida e data de saída\n\n    Opcionais (com defaults):\n\n        year: Se ausente, use 2026.\n\n    IATA: Sempre use o código IATA de 3 letras das cidades.\n\nLÓGICA DE DECISÃO:\n\n    Verifique o Histórico: Se as APIs já retornaram dados, sua decision é \"COMPLETE\" e você deve formatar a user_message final.\n\n    Verifique o Prompt: Se o usuário quer viajar mas não disse para onde ou quando, sua decision é \"ASK_USER\" e a user_message deve ser uma pergunta gentil.\n\n    Se houver dados suficientes, decision é \"SEARCH\".\n\nRegras de Pesquisa:\n\n  Você possui 3 ferramentas TripAdvisor, Hotels, Flights.\n\n  Use a TripAdvisior apenas para descobrir pontos turísticos interesantes na cidade de destino.\n\nA hotels para os melhores hóteis com base no gosto do usuário.\n\nE a flights para encontrar os voos que mais combinam com os gostos do usuário.\n\nFORMATO DE SAÍDA OBRIGATÓRIO (JSON): Responda APENAS o JSON abaixo, sem blocos de código ou explicações. { \"decision\": \"SEARCH\" | \"ASK_USER\" | \"COMPLETE\", \"missing_info\": [], \"user_message\": \"Sua mensagem aqui\"}"
         }
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
@@ -21,7 +21,7 @@
     },
     {
       "parameters": {
-        "jsonSchemaExample": "{\n  \"decision\": \"string\",\n  \"missing_info\": [\"string\"],\n  \"user_message\": \"string\",\n  \"search_params\": {\n    \"originCity\": \"string\",\n    \"originCityIATA\": \"string\",\n    \"destinationCity\": \"string\",\n    \"destinationCityIATA\": \"string\",\n    \"departureDate\": \"string\",\n    \"returnDate\": \"string\",\n    \"adults\": \"number\",\n    \"children\": \"number\"\n  }\n}"
+        "jsonSchemaExample": "{\n  \"decision\": \"string\",\n  \"missing_info\": [\"string\"],\n  \"user_message\": \"string\"\n}"
       },
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.3,
@@ -51,9 +51,9 @@
       "parameters": {
         "model": {
           "__rl": true,
-          "value": "gpt-4.1-mini",
+          "value": "gpt-5.1",
           "mode": "list",
-          "cachedResultName": "gpt-4.1-mini"
+          "cachedResultName": "gpt-5.1"
         },
         "builtInTools": {},
         "options": {}
@@ -106,7 +106,7 @@
         "workflowInputs": {
           "mappingMode": "defineBelow",
           "value": {
-            "adults": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('adults', ``, 'number') }}",
+            "adults": "=1",
             "originLocationCode": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('originLocationCode', ``, 'string') }}",
             "destinationLocationCode": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('destinationLocationCode', ``, 'string') }}",
             "departureDate": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('departureDate', `should be in the format of YYYY-MM-DD. E.g. 2023-01-31.`, 'string') }}",
@@ -395,7 +395,7 @@
     "executionOrder": "v1",
     "availableInMCP": false
   },
-  "versionId": "44cb06bc-08f1-4aca-87d8-23e2ec2231ad",
+  "versionId": "f6911e4d-7e45-4abd-b7b9-9171c6ff954f",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "22ea323b6c85fbb2de3a8dedaefae6ec8edb82e9c1e169fef139445834eee221"
