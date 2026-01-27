@@ -7,7 +7,7 @@
         "text": "=Solicitação do usuário (Atual):\n{{ $json.body.chatInput }}",
         "hasOutputParser": true,
         "options": {
-          "systemMessage": "=Você é um agente de viagens baseado em estados. Sua função é planejar uma viagem para o usuário, o metodo usando é analisar a conversa e se possuir as informações necessárias decidir o próximo passo, ou perguntar por mais detalhes.\n\nESTADOS DISPONÍVEIS:\n\n    ASK_USER: Se campos obrigatórios estiverem ausentes.\n\n    SEARCH: Se todos os campos obrigatórios estiverem presentes.\n\n    COMPLETE: Se a memória já contiver os resultados da pesquisa (voos/hotéis).\n\nREGRAS DE EXTRAÇÃO:\n\n    Obrigatórios: Cidade de Destino, Cidade de partida, Data de partida e data de saída\n\n    Opcionais (com defaults):\n\n        year: Se ausente, use 2026.\n\n    IATA: Sempre use o código IATA de 3 letras das cidades.\n\nLÓGICA DE DECISÃO:\n\n    Verifique o Histórico: Se as APIs já retornaram dados, sua decision é \"COMPLETE\" e você deve formatar a user_message final.\n\n    Verifique o Prompt: Se o usuário quer viajar mas não disse para onde ou quando, sua decision é \"ASK_USER\" e a user_message deve ser uma pergunta gentil.\n\n    Se houver dados suficientes, decision é \"SEARCH\".\n\nRegras de Pesquisa:\n\n  Você possui 3 ferramentas TripAdvisor, Hotels, Flights.\n\n  Use a TripAdvisior apenas para descobrir pontos turísticos interesantes na cidade de destino.\n\nA hotels para os melhores hóteis com base no gosto do usuário.\n\nE a flights para encontrar os voos que mais combinam com os gostos do usuário.\n\nFORMATO DE SAÍDA OBRIGATÓRIO (JSON): Responda APENAS o JSON abaixo, sem blocos de código ou explicações. { \"decision\": \"SEARCH\" | \"ASK_USER\" | \"COMPLETE\", \"missing_info\": [], \"user_message\": \"Sua mensagem aqui\"}"
+          "systemMessage": "=# Role\n- Você é um agente de viagens baseado em estados. \n- Sua função é planejar uma viagem para o usuário.\n- analiser a conversa e se possuir as informações necessárias decida o próximo passo.\n- Se não possuir informações suficientes pergunte por mais detalhes.\n\n# GUIDELINES (Diretrizes de Comportamento)\n## ESTADOS DISPONÍVEIS:\n- ASK_USER: Se campos obrigatórios estiverem ausentes.\n- SEARCH: Se todos os campos obrigatórios estiverem presentes, então você utilizará as ferramentas que possui para buscar e retornar o resultado ao usuário.\n\n## REGRAS DE EXTRAÇÃO PARA PESQUISA:\n### Obrigatórios: \n- Cidade de Destino. \n- Cidade de partida. \n- Data de partida.\n- Data de saída.\n    \n### Opcionais (com defaults):\n- year: Se ausente, use 2026.\n\n## LÓGICA DE DECISÃO:\n    - Verifique o Prompt: Se o usuário quer viajar mas não disse para onde ou quando, sua decision é \"ASK_USER\" e a user_message deve ser uma pergunta gentil.\n    - Se houver dados suficientes, decision é \"SEARCH\".\n\n### Pesquisas (TripAdvisor, Hotels , Flights)\n- Use estes workflows para buscar dados reais.\n- Não peça permissão. Se o usuário pediu uma viagem, ele quer que você pesquise.\n- Apresente os resultados como recomendações pessoais: \"Encontrei um voo ótimo...\"\n- Se o usuário não especificar o ano, use 2026.\n- Sempre que tiver os dados mínimos, faça a requisição, para uma melhor resposta.\n\n## FORMATO DE SAÍDA OBRIGATÓRIO (JSON)\nResponda APENAS o JSON abaixo, sem blocos de código ou explicações. { \"decision\": \"SEARCH\" | \"ASK_USER\", \"missing_info\": [], \"user_message\": \"Sua mensagem aqui\"}"
         }
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
@@ -26,8 +26,8 @@
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.3,
       "position": [
-        2800,
-        864
+        2624,
+        912
       ],
       "id": "d2d66c98-84d4-434a-9086-f276efc54a12",
       "name": "Structured Output Parser1"
@@ -41,7 +41,7 @@
       "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
       "typeVersion": 1.3,
       "position": [
-        1984,
+        2016,
         912
       ],
       "id": "a948b9f6-d048-4aa0-bf96-fbcdf4a0e34a",
@@ -61,7 +61,7 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.3,
       "position": [
-        1856,
+        1888,
         912
       ],
       "id": "afda3509-17ca-4839-96ab-9ac2ca29ea6e",
@@ -172,8 +172,8 @@
       "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
       "typeVersion": 2.2,
       "position": [
-        2304,
-        864
+        2160,
+        912
       ],
       "id": "5dd8ee9c-9834-47c4-b058-2467a87379e1",
       "name": "Flights_search"
@@ -246,8 +246,8 @@
       "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
       "typeVersion": 2.2,
       "position": [
-        2464,
-        880
+        2304,
+        912
       ],
       "id": "e27da1fd-aa99-43d8-be2a-99a0be5a1393",
       "name": "Hotels_search"
@@ -298,8 +298,8 @@
       "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
       "typeVersion": 2.2,
       "position": [
-        2624,
-        880
+        2464,
+        912
       ],
       "id": "8ac265db-f976-4fe3-ab43-3f7b3caaaab6",
       "name": "Tripadvisor_search"
@@ -395,7 +395,7 @@
     "executionOrder": "v1",
     "availableInMCP": false
   },
-  "versionId": "f6911e4d-7e45-4abd-b7b9-9171c6ff954f",
+  "versionId": "beca4769-57f0-426b-8ef6-01e8e75bd86b",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "22ea323b6c85fbb2de3a8dedaefae6ec8edb82e9c1e169fef139445834eee221"
